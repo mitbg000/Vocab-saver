@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vocab Saver</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #f9fafb;
+      --bg-secondary: #ffffff;
+      --text-primary: #1f2937;
+      --text-secondary: #4b5563;
+      --border-color: #e5e7eb;
+      --accent-color: #3b82f6;
+      --accent-hover: #2563eb;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+      --btn-secondary-bg: #e5e7eb;
+      --btn-secondary-text: #1f2937;
+      --btn-secondary-hover: #d1d5db;
+    }
+    
+    .dark-mode {
+      --bg-primary: #111827;
+      --bg-secondary: #1f2937;
+      --text-primary: #f9fafb;
+      --text-secondary: #d1d5db;
+      --border-color: #374151;
+      --accent-color: #3b82f6;
+      --accent-hover: #60a5fa;
+      --shadow-color: rgba(0, 0, 0, 0.25);
+      --btn-secondary-bg: #374151;
+      --btn-secondary-text: #e5e7eb;
+      --btn-secondary-hover: #4b5563;
+    }
+    
+    body {
+      min-width: 350px;
+      max-width: 350px;
+      max-height: 500px;
+      overflow-y: auto;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      transition: background-color 0.3s, color 0.3s;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .category-tab {
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 4px;
+      color: var(--text-secondary);
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .category-tab.active {
+      background-color: var(--accent-color);
+      color: white;
+    }
+    .word-item {
+      border-bottom: 1px solid var(--border-color);
+      padding: 8px 0;
+    }
+    .word-item:last-child {
+      border-bottom: none;
+    }
+    #add-word-form {
+      background-color: var(--bg-secondary);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px var(--shadow-color);
+      transition: all 0.3s ease;
+      border: 1px solid var(--border-color);
+    }
+    #add-word-form.hidden {
+      display: none;
+    }
+    
+    .bg-card {
+      background-color: var(--bg-secondary);
+      border-color: var(--border-color);
+    }
+    
+    .text-normal {
+      color: var(--text-primary);
+    }
+    
+    .text-muted {
+      color: var(--text-secondary);
+    }
+    
+    .border-normal {
+      border-color: var(--border-color);
+    }
+    
+    .btn-primary {
+      background-color: var(--accent-color);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--accent-hover);
+    }
+    
+    .btn-secondary {
+      background-color: var(--btn-secondary-bg);
+      color: var(--btn-secondary-text);
+    }
+    
+    .btn-secondary:hover {
+      background-color: var(--btn-secondary-hover);
+    }
+    
+    input, select, textarea {
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+      border-color: var(--border-color);
+    }
+    
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent-color);
+    }
+  </style>
+</head>
+<body class="p-4">
+  <div class="bg-card rounded-lg shadow-md p-4">
+    <div class="flex justify-between items-center mb-4">
+      <h1 class="text-lg font-bold text-normal">Vocab Saver</h1>
+      <div class="flex space-x-2 items-center">
+        <button id="addNewWordBtn" class="px-2 py-1 text-sm btn-primary rounded">Add Word</button>
+        <button id="openManager" class="px-2 py-1 text-sm btn-secondary rounded">Manage</button>
+      </div>
+    </div>
+    
+    <!-- Add New Word Form (Hidden by default) -->
+    <div id="add-word-form" class="mb-4 hidden">
+      <h2 class="text-md font-medium mb-2 text-normal">Add New Word</h2>
+      
+      <div class="mb-2">
+        <label for="word" class="block text-sm font-medium mb-1 text-normal">Word</label>
+        <input id="word" type="text" class="w-full px-3 py-2 border border-normal rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter word">
+        <!-- Pronunciation will be added here dynamically -->
+      </div>
+      
+      <div class="mb-2">
+        <label for="meaning" class="block text-sm font-medium mb-1 text-normal">Meaning</label>
+        <input id="meaning" type="text" class="w-full px-3 py-2 border border-normal rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter meaning">
+      </div>
+      
+      <div class="mb-3">
+        <label for="category" class="block text-sm font-medium mb-1 text-normal">Category</label>
+        <select id="category" class="w-full px-3 py-2 border border-normal rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <!-- Categories will be loaded dynamically -->
+        </select>
+      </div>
+      
+      <div class="flex space-x-2">
+        <button id="saveWord" class="flex-1 px-4 py-2 btn-primary font-medium rounded-md">
+          Save Word
+        </button>
+        <button id="cancelAddWord" class="px-4 py-2 btn-secondary font-medium rounded-md">
+          Cancel
+        </button>
+      </div>
+    </div>
+    
+    <!-- Tab navigation -->
+    <div class="mb-4">
+      <div class="flex space-x-2 mb-2">
+        <div id="tab-recent" class="category-tab active">Recent</div>
+        <div id="tab-search" class="category-tab">Search</div>
+        <div id="tab-categories" class="category-tab">Categories</div>
+      </div>
+    </div>
+    
+    <!-- Tab content -->
+    <div class="tab-content-container">
+      <!-- Recent Words Tab -->
+      <div id="content-recent" class="tab-content active">
+        <div id="recent-words" class="space-y-2">
+          <div class="text-center text-muted py-4">Loading vocabulary...</div>
+        </div>
+      </div>
+      
+      <!-- Search Tab -->
+      <div id="content-search" class="tab-content">
+        <div class="mb-4">
+          <input id="search-input" type="text" class="w-full px-3 py-2 border border-normal rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter search keyword...">
+        </div>
+        <div id="search-results" class="space-y-2">
+          <div class="text-center text-muted py-4">Enter keyword to search</div>
+        </div>
+      </div>
+      
+      <!-- Categories Tab -->
+      <div id="content-categories" class="tab-content">
+        <div id="category-filter" class="flex flex-wrap gap-2 mb-4">
+          <!-- Categories will be loaded dynamically -->
+        </div>
+        <div id="category-words" class="space-y-2">
+          <div class="text-center text-muted py-4">Select a category</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html> 

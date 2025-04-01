@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vocabulary Manager</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+  <style>
+    :root {
+      --bg-primary: #f9fafb;
+      --bg-secondary: #ffffff;
+      --text-primary: #1f2937;
+      --text-secondary: #4b5563;
+      --border-color: #e5e7eb;
+      --accent-color: #2563eb;
+      --accent-hover: #1d4ed8;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+    }
+    
+    .dark-mode {
+      --bg-primary: #111827;
+      --bg-secondary: #1f2937;
+      --text-primary: #f9fafb;
+      --text-secondary: #d1d5db;
+      --border-color: #374151;
+      --accent-color: #3b82f6;
+      --accent-hover: #60a5fa;
+      --shadow-color: rgba(0, 0, 0, 0.25);
+    }
+    
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      transition: background-color 0.3s, color 0.3s;
+    }
+    
+    .bg-card {
+      background-color: var(--bg-secondary);
+      border-color: var(--border-color);
+    }
+    
+    .text-normal {
+      color: var(--text-primary);
+    }
+    
+    .text-muted {
+      color: var(--text-secondary);
+    }
+    
+    .border-normal {
+      border-color: var(--border-color);
+    }
+    
+    /* Buttons */
+    .btn-primary {
+      background-color: var(--accent-color);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--accent-hover);
+    }
+    
+    .btn-secondary {
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+    }
+    
+    .btn-secondary:hover {
+      background-color: var(--border-color);
+    }
+    
+    .btn-success {
+      background-color: #059669;
+      color: white;
+    }
+    
+    .btn-success:hover {
+      background-color: #047857;
+    }
+    
+    /* CSS cho tab active */
+    .tab-active {
+      border-bottom: 3px solid var(--accent-color);
+      color: var(--accent-color);
+      font-weight: 600;
+    }
+    /* Ẩn nội dung tab không được chọn */
+    .tab-content {
+      display: none;
+    }
+    /* Hiển thị tab đang được chọn */
+    .tab-content.active {
+      display: block;
+    }
+    /* Hiệu ứng hover cho tab */
+    .tab-btn:hover:not(.tab-active) {
+      color: var(--text-secondary);
+      border-bottom: 3px solid var(--border-color);
+      transition: all 0.2s;
+    }
+    /* Animation cho tab content */
+    .tab-content.active {
+      animation: fadeIn 0.3s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .toggle-dark-mode {
+      width: 48px;
+      height: 28px;
+      border-radius: 14px;
+      background-color: #d1d5db;
+      position: relative;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin-left: 16px;
+    }
+    
+    .toggle-dark-mode::after {
+      content: '';
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      background-color: white;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.3s;
+    }
+    
+    .toggle-dark-mode.active {
+      background-color: #3b82f6;
+    }
+    
+    .toggle-dark-mode.active::after {
+      transform: translateX(20px);
+    }
+  </style>
+</head>
+<body>
+  <div class="container mx-auto p-4 max-w-4xl">
+    <header class="bg-card shadow-md rounded-lg p-4 mb-6">
+      <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-center text-blue-600">Vocabulary Manager</h1>
+        <div class="flex items-center">
+          <span class="text-sm text-muted mr-2">Dark Mode</span>
+          <div id="darkModeToggle" class="toggle-dark-mode" title="Toggle Dark Mode"></div>
+        </div>
+      </div>
+      
+      <!-- Tab Navigation -->
+      <div class="flex border-b border-normal mt-4">
+        <button id="tab-word-list" class="tab-btn tab-active px-4 py-2 mr-2 focus:outline-none flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+          </svg>
+          Vocabulary List
+        </button>
+        <button id="tab-add-word" class="tab-btn px-4 py-2 mr-2 focus:outline-none flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Add New Word
+        </button>
+        <button id="tab-manage-categories" class="tab-btn px-4 py-2 mr-2 focus:outline-none flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          </svg>
+          Manage Categories
+        </button>
+        <button id="tab-export" class="tab-btn px-4 py-2 mr-2 focus:outline-none flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          Export Vocabulary
+        </button>
+        <button id="tab-ai-api" class="tab-btn px-4 py-2 focus:outline-none flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+          AI API Settings
+        </button>
+      </div>
+    </header>
+
+    <!-- Tab Content: Vocabulary List -->
+    <div id="content-word-list" class="tab-content active bg-card shadow-md rounded-lg p-4 mb-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-medium text-normal">Vocabulary List</h2>
+        <div class="flex-1 max-w-xs ml-4">
+          <label for="filter-category" class="block text-sm font-medium mb-1 text-normal">Filter by category:</label>
+          <select id="filter-category" class="w-full px-3 py-2 border border-normal bg-card text-normal rounded-md">
+            <option value="all">All categories</option>
+            <!-- Categories will be loaded dynamically -->
+          </select>
+        </div>
+      </div>
+      
+      <div id="word-list" class="space-y-2">
+        <!-- Words will be loaded dynamically -->
+        <div class="text-center text-muted py-4">Loading vocabulary...</div>
+      </div>
+      
+      <!-- Pagination controls -->
+      <div id="pagination-controls" class="mt-6 flex flex-wrap items-center justify-between">
+        <div class="mb-2 sm:mb-0">
+          <label for="page-size" class="text-sm font-medium text-normal mr-2">Words per page:</label>
+          <select id="page-size" class="px-2 py-1 border border-normal bg-card text-normal rounded-md text-sm">
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </div>
+        <div class="flex items-center space-x-1">
+          <button id="prev-page" class="px-3 py-1 btn-secondary rounded-md disabled:opacity-50 disabled:cursor-not-allowed">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+            </svg>
+          </button>
+          <span id="pagination-info" class="text-sm text-muted">Page <span id="current-page">1</span> / <span id="total-pages">1</span></span>
+          <button id="next-page" class="px-3 py-1 btn-secondary rounded-md disabled:opacity-50 disabled:cursor-not-allowed">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+            </svg>
+          </button>
+          <div class="ml-2 flex items-center">
+            <label for="go-to-page" class="sr-only">Go to page</label>
+            <input id="go-to-page" type="number" min="1" placeholder="Page" class="w-16 px-2 py-1 border border-normal bg-card text-normal rounded-md text-sm">
+            <button id="go-to-page-btn" class="ml-1 px-2 py-1 btn-primary rounded-md text-sm">
+              Go
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Tab Content: Add New Word -->
+    <div id="content-add-word" class="tab-content bg-card shadow-md rounded-lg p-4 mb-6">
+      <h2 class="text-lg font-medium text-normal mb-4">Add New Word</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div>
+          <label for="add-word" class="block text-sm font-medium mb-1 text-normal">Word:</label>
+          <input id="add-word" type="text" class="w-full px-3 py-2 border border-normal bg-card text-normal rounded-md" placeholder="Enter new word">
+          <!-- Pronunciation will be added here dynamically -->
+        </div>
+        
+        <div>
+          <label for="add-meaning" class="block text-sm font-medium mb-1 text-normal">Meaning:</label>
+          <input id="add-meaning" type="text" class="w-full px-3 py-2 border border-normal bg-card text-normal rounded-md" placeholder="Enter meaning">
+        </div>
+        
+        <div>
+          <label for="add-category" class="block text-sm font-medium mb-1 text-normal">Category:</label>
+          <select id="add-category" class="w-full px-3 py-2 border border-normal bg-card text-normal rounded-md">
+            <!-- Categories will be loaded dynamically -->
+          </select>
+        </div>
+      </div>
+      
+      <button id="add-word-btn" class="w-full px-4 py-2 btn-success font-medium rounded-md flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+        </svg>
+        Add New Word
+      </button>
+    </div>
+    
+    <!-- Tab Content: Manage Categories -->
+    <div id="content-manage-categories" class="tab-content bg-card shadow-md rounded-lg p-4 mb-6">
+      <h2 class="text-lg font-medium text-normal mb-4">Manage Categories</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+        <div>
+          <label for="new-category" class="block text-sm font-medium mb-1 text-normal">New Category Name:</label>
+          <input id="new-category" type="text" class="w-full px-3 py-2 border border-normal bg-card text-normal rounded-md" placeholder="Enter category name">
+        </div>
+        
+        <div>
+          <label for="source-language" class="block text-sm font-medium mb-1 text-normal">Source Language:</label>
+          <select id="source-language" class="w-full px-3 py-2 border border-normal bg-card text-normal rounded-md">
+            <option value="en">English</option>
+            <option value="vi">Vietnamese</option>
+            <option value="zh">Chinese</option>
+            <option value="fr">French</option>
+            <option value="de">German</option>
+            <option value="ja">Japanese</option>
+            <option value="ko">Korean</option>
+          </select>
+        </div>
+        
+        <div>
+          <label for="target-language" class="block text-sm font-medium mb-1 text-normal">Target Language:</label>
+          <select id="target-language" class="w-full px-3 py-2 border border-normal bg-card text-normal rounded-md">
+            <option value="vi">Vietnamese</option>
+            <option value="en">English</option>
+            <option value="zh">Chinese</option>
+            <option value="fr">French</option>
+            <option value="de">German</option>
+            <option value="ja">Japanese</option>
+            <option value="ko">Korean</option>
+          </select>
+        </div>
+        
+        <div class="flex items-end">
+          <button id="add-category-btn" class="w-full px-4 py-2 btn-success font-medium rounded-md flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Add Category
+          </button>
+        </div>
+      </div>
+      
+      <div id="category-list" class="mt-4 space-y-2">
+        <!-- Categories will be loaded dynamically -->
+      </div>
+    </div>
+    
+    <!-- Tab Content: Export Vocabulary -->
+    <div id="content-export" class="tab-content bg-card shadow-md rounded-lg p-4">
+      <h2 class="text-lg font-medium text-normal mb-4">Export Vocabulary</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label for="export-category" class="block text-sm font-medium mb-1 text-normal">Category:</label>
+          <select id="export-category" class="w-full px-3 py-2 border border-normal bg-card text-normal rounded-md">
+            <option value="all">All categories</option>
+            <!-- Categories will be loaded dynamically -->
+          </select>
+        </div>
+        
+        <div>
+          <label for="export-format" class="block text-sm font-medium mb-1 text-normal">Format:</label>
+          <select id="export-format" class="w-full px-3 py-2 border border-normal bg-card text-normal rounded-md">
+            <option value="csv">CSV (Excel)</option>
+            <option value="txt">Text (TXT)</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="mb-4">
+        <label for="export-time-range" class="block text-sm font-medium mb-1 text-normal">Time Range:</label>
+        <select id="export-time-range" class="w-full px-3 py-2 border border-normal bg-card text-normal rounded-md mb-2">
+          <option value="all">All time</option>
+          <option value="today">Today</option>
+          <option value="yesterday">Yesterday</option>
+          <option value="this-week">This week</option>
+          <option value="last-week">Last week</option>
+          <option value="this-month">This month</option>
+          <option value="last-month">Last month</option>
+          <option value="custom">Custom range</option>
+        </select>
+        
+        <div id="custom-date-range" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2" style="display: none;">
+          <div>
+            <label for="date-from" class="block text-sm font-medium mb-1 text-normal">From:</label>
+            <input type="date" id="date-from" class="w-full px-3 py-2 border border-normal bg-card text-normal rounded-md">
+          </div>
+          <div>
+            <label for="date-to" class="block text-sm font-medium mb-1 text-normal">To:</label>
+            <input type="date" id="date-to" class="w-full px-3 py-2 border border-normal bg-card text-normal rounded-md">
+          </div>
+        </div>
+      </div>
+      
+      <button id="export-btn" class="w-full px-4 py-2 btn-primary font-medium rounded-md flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+        Export Vocabulary
+      </button>
+    </div>
+    
+    <!-- Tab Content: AI API Settings -->
+    <div id="content-ai-api" class="tab-content bg-card shadow-md rounded-lg p-4">
+      <h2 class="text-lg font-medium text-normal mb-4">AI API Settings</h2>
+      
+      <div class="mb-4">
+        <label for="translation-service" class="block text-sm font-medium mb-1 text-normal">Translation Service:</label>
+        <select id="translation-service" class="w-full px-3 py-2 border border-normal bg-card text-normal rounded-md mb-2">
+          <option value="google">Google Translate (Default)</option>
+          <option value="openai">OpenAI (ChatGPT)</option>
+          <option value="gemini">Google Gemini</option>
+          <option value="deepseek">DeepSeek AI</option>
+          <option value="grok">Grok AI</option>
+        </select>
+        
+        <div class="text-sm text-muted mb-4">
+          Select the AI service you want to use for translating word meanings. Each service requires its own API key.
+        </div>
+      </div>
+      
+      <!-- API Key sections - each will show/hide based on selected service -->
+      <div id="openai-settings" class="api-settings mb-4" style="display: none;">
+        <label for="openai-api-key" class="block text-sm font-medium mb-1 text-normal">OpenAI API Key:</label>
+        <input type="password" id="openai-api-key" class="w-full px-3 py-2 border border-normal bg-card text-normal rounded-md" placeholder="Enter your OpenAI API key">
+        
+        <div class="p-3 bg-card border border-normal rounded-md mt-2 mb-4 text-sm text-normal">
+          <p>OpenAI will automatically select the most appropriate model for your task.</p>
+          <p class="mt-1">The API has been updated to follow the latest OpenAI recommendations.</p>
+        </div>
+        
+        <div class="text-sm text-muted mb-2">
+          <a href="https://platform.openai.com/api-keys" target="_blank" class="text-accent hover:underline">Get your OpenAI API key</a>
+        </div>
+      </div>
+      
+      <div id="gemini-settings" class="api-settings mb-4" style="display: none;">
+        <label for="gemini-api-key" class="block text-sm font-medium mb-1 text-normal">Google Gemini API Key:</label>
+        <input type="password" id="gemini-api-key" class="w-full px-3 py-2 border border-normal bg-card text-normal rounded-md" placeholder="Enter your Gemini API key">
+        
+        <div class="mt-2 mb-4">
+          <label for="gemini-model" class="block text-sm font-medium mb-1 text-normal">Model:</label>
+          <select id="gemini-model" class="w-full px-3 py-2 border border-normal bg-card text-normal rounded-md">
+            <option value="gemini-pro">Gemini Pro</option>
+            <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+            <option value="gemini-pro-vision">Gemini Pro Vision</option>
+          </select>
+        </div>
+        
+        <div class="text-sm text-muted mb-2">
+          <a href="https://ai.google.dev/" target="_blank" class="text-accent hover:underline">Get your Gemini API key</a>
+        </div>
+      </div>
+      
+      <div id="deepseek-settings" class="api-settings mb-4" style="display: none;">
+        <label for="deepseek-api-key" class="block text-sm font-medium mb-1 text-normal">DeepSeek API Key:</label>
+        <input type="password" id="deepseek-api-key" class="w-full px-3 py-2 border border-normal bg-card text-normal rounded-md" placeholder="Enter your DeepSeek API key">
+        
+        <div class="mt-2 mb-4">
+          <label for="deepseek-model" class="block text-sm font-medium mb-1 text-normal">Model:</label>
+          <select id="deepseek-model" class="w-full px-3 py-2 border border-normal bg-card text-normal rounded-md">
+            <option value="deepseek-chat">DeepSeek Chat</option>
+            <option value="deepseek-coder">DeepSeek Coder</option>
+          </select>
+        </div>
+        
+        <div class="text-sm text-muted mb-2">
+          <a href="https://platform.deepseek.com/" target="_blank" class="text-accent hover:underline">Get your DeepSeek API key</a>
+        </div>
+      </div>
+      
+      <div id="grok-settings" class="api-settings mb-4" style="display: none;">
+        <label for="grok-api-key" class="block text-sm font-medium mb-1 text-normal">Grok API Key:</label>
+        <input type="password" id="grok-api-key" class="w-full px-3 py-2 border border-normal bg-card text-normal rounded-md" placeholder="Enter your Grok API key">
+        
+        <div class="text-sm text-muted mb-2">
+          <a href="https://grok.x.ai/" target="_blank" class="text-accent hover:underline">Get your Grok API key</a>
+        </div>
+      </div>
+      
+      <div class="bg-card border border-normal p-4 rounded-md mb-4">
+        <div class="flex items-start">
+          <div class="flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-accent-dark">Important Information</h3>
+            <div class="mt-2 text-sm text-normal">
+              <p>Your API keys are stored locally on your device and are never sent to our servers. They are used only for translating vocabulary words.</p>
+              <p class="mt-1">Using AI services will incur charges based on their respective pricing models. Please check each provider's pricing details.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex space-x-4">
+        <button id="save-api-settings" class="px-4 py-2 btn-primary font-medium rounded-md flex-1 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+          </svg>
+          Save Settings
+        </button>
+        
+        <button id="test-api-connection" class="px-4 py-2 btn-success font-medium rounded-md flex-1 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Test Connection
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Section -->
+  <footer class="mt-8 pb-6 text-center">
+    <div class="container mx-auto">
+      <div class="border-t border-normal pt-5">
+        <!-- App Info -->
+        <div class="flex flex-col md:flex-row justify-center items-center space-y-2 md:space-y-0 md:space-x-8 mb-3">
+          <div class="flex items-center text-muted">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+            </svg>
+            <span class="text-sm">Version: <span class="text-accent font-medium">1.0</span></span>
+          </div>
+          
+          <div class="flex items-center text-muted">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+            </svg>
+            <span class="text-sm">Last Updated: <span class="text-accent font-medium">April 2025</span></span>
+          </div>
+        </div>
+        
+        <!-- Developer Info & Contact -->
+        <div class="flex justify-center space-x-4 mb-3">
+          <a href="https://github.com/mitbg000" target="_blank" rel="noopener noreferrer" class="text-muted hover:text-accent transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-github" viewBox="0 0 16 16">
+              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+            </svg>
+          </a>
+          <a href="mailto:cbmanhmit@gmail.com" class="text-muted hover:text-accent transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-envelope" viewBox="0 0 16 16">
+              <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z"/>
+            </svg>
+          </a>
+        </div>
+        
+        <!-- Copyright -->
+        <div class="text-muted text-sm">
+          <p>&copy; 2025 mitbg000.com. All rights reserved.</p>
+          <p class="text-xs mt-1">Developed with <span class="text-accent">❤</span> by mitbg000</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="manager.js"></script>
+</body>
+</html> 
