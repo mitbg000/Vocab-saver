@@ -274,7 +274,7 @@ function playAudioFromUrl(audioUrl, loadingIndicator) {
 // Tạo phần tử HTML để hiển thị phiên âm và nút phát âm
 function createPronunciationElement(pronunciation) {
   const container = document.createElement('div');
-  container.className = 'flex items-center space-x-2 text-sm text-gray-500 mt-1';
+  container.className = 'flex items-center space-x-2 text-sm text-muted mt-1';
   
   // Phần hiển thị phiên âm
   if (pronunciation && pronunciation.text) {
@@ -312,7 +312,7 @@ function createPronunciationElement(pronunciation) {
   // Thêm chỉ báo nếu đang sử dụng browser speech
   if (pronunciation && pronunciation.useBrowserSpeech) {
     const speechNote = document.createElement('span');
-    speechNote.className = 'text-xs text-gray-500 ml-2 italic';
+    speechNote.className = 'text-xs text-muted ml-2 italic';
     speechNote.textContent = '(browser speech)';
     container.appendChild(speechNote);
   }
@@ -356,93 +356,16 @@ async function saveWordWithPronunciation(wordObj) {
 }
 
 // Hàm quản lý dark mode
-function toggleDarkMode() {
-  // Lấy trạng thái dark mode hiện tại từ document
-  const isDarkMode = document.documentElement.classList.contains('dark');
-  
-  // Chuyển đổi trạng thái
-  if (isDarkMode) {
-    document.documentElement.classList.remove('dark');
-    // Lưu trạng thái vào localStorage và chrome.storage nếu có
-    localStorage.setItem('vocabulary-dark-mode', 'light');
-    if (typeof chrome !== 'undefined' && chrome.storage) {
-      chrome.storage.local.set({'dark-mode-enabled': false});
-    }
-    
-    // Cập nhật trạng thái nút toggle
-    const darkModeToggle = document.getElementById('darkModeToggle');
-    if (darkModeToggle) {
-      darkModeToggle.classList.remove('active');
-    }
-  } else {
-    document.documentElement.classList.add('dark');
-    // Lưu trạng thái vào localStorage và chrome.storage nếu có
-    localStorage.setItem('vocabulary-dark-mode', 'dark');
-    if (typeof chrome !== 'undefined' && chrome.storage) {
-      chrome.storage.local.set({'dark-mode-enabled': true});
-    }
-    
-    // Cập nhật trạng thái nút toggle
-    const darkModeToggle = document.getElementById('darkModeToggle');
-    if (darkModeToggle) {
-      darkModeToggle.classList.add('active');
-    }
-  }
-}
+// function toggleDarkMode() {...} ➡ Xóa toàn bộ function này
+// function initDarkMode() {...} ➡ Xóa toàn bộ function này
+// function checkLocalStorageDarkMode() {...} ➡ Xóa toàn bộ function này
+// function applyDarkModeSettings(isDarkModeEnabled) {...} ➡ Xóa toàn bộ function này
 
 // Hàm khởi tạo dark mode dựa trên cài đặt đã lưu
-function initDarkMode() {
-  // Kiểm tra cài đặt dark mode từ chrome.storage (nếu có) hoặc localStorage
-  if (typeof chrome !== 'undefined' && chrome.storage) {
-    chrome.storage.local.get(['dark-mode-enabled'], function(result) {
-      // Nếu có lỗi hoặc không tìm thấy cài đặt trong chrome.storage, kiểm tra localStorage
-      if (chrome.runtime.lastError || result['dark-mode-enabled'] === undefined) {
-        checkLocalStorageDarkMode();
-        return;
-      }
-      
-      const isDarkModeEnabled = result['dark-mode-enabled'] === true;
-      applyDarkModeSettings(isDarkModeEnabled);
-    });
-  } else {
-    // Nếu không có chrome.storage, sử dụng localStorage
-    checkLocalStorageDarkMode();
-  }
-  
-  // Gắn sự kiện cho nút toggle dark mode nếu đã có
-  const darkModeToggle = document.getElementById('darkModeToggle');
-  if (darkModeToggle) {
-    darkModeToggle.addEventListener('click', toggleDarkMode);
-  }
-}
-
-// Hàm kiểm tra cài đặt dark mode từ localStorage
-function checkLocalStorageDarkMode() {
-  const darkModeSetting = localStorage.getItem('vocabulary-dark-mode');
-  const isDarkModeEnabled = darkModeSetting === 'dark';
-  applyDarkModeSettings(isDarkModeEnabled);
-}
+// function initDarkMode() {...} ➡ Xóa toàn bộ function này
 
 // Hàm áp dụng cài đặt dark mode
-function applyDarkModeSettings(isDarkModeEnabled) {
-  if (isDarkModeEnabled) {
-    document.documentElement.classList.add('dark');
-    
-    // Cập nhật trạng thái nút toggle
-    const darkModeToggle = document.getElementById('darkModeToggle');
-    if (darkModeToggle) {
-      darkModeToggle.classList.add('active');
-    }
-  } else {
-    document.documentElement.classList.remove('dark');
-    
-    // Cập nhật trạng thái nút toggle
-    const darkModeToggle = document.getElementById('darkModeToggle');
-    if (darkModeToggle) {
-      darkModeToggle.classList.remove('active');
-    }
-  }
-}
+// function applyDarkModeSettings(isDarkModeEnabled) {...} ➡ Xóa toàn bộ function này
 
 document.addEventListener('DOMContentLoaded', function() {
   // DOM Elements
@@ -608,7 +531,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const loadingElement = document.createElement('div');
       loadingElement.id = 'pronunciation-loading';
       loadingElement.textContent = 'Loading pronunciation...';
-      loadingElement.className = 'text-sm text-gray-500 mt-1';
+      loadingElement.className = 'text-sm text-muted mt-1';
       
       const existingLoading = document.getElementById('pronunciation-loading');
       const existingPronunciation = document.getElementById('pronunciation-container');
@@ -634,12 +557,12 @@ document.addEventListener('DOMContentLoaded', function() {
       // Luôn tạo phần tử phát âm, dù có pronunciation hay không
       const pronunciationElement = createPronunciationElement(pronunciation);
       pronunciationElement.id = 'pronunciation-container';
-      pronunciationElement.className = 'flex items-center space-x-2 text-sm text-gray-500 mt-2 mb-2 bg-blue-50 p-2 rounded';
+      pronunciationElement.className = 'flex items-center space-x-2 text-sm text-muted mt-2 mb-2 bg-blue-50 p-2 rounded';
       
       // Nếu đang sử dụng browser speech vì không tìm thấy phát âm từ API, hiển thị thông báo
       if (pronunciation.useBrowserSpeech && !pronunciation.text) {
         const speechNote = document.createElement('span');
-        speechNote.className = 'text-xs text-gray-500 ml-2 italic';
+        speechNote.className = 'text-xs text-muted ml-2 italic';
         speechNote.textContent = '(No API pronunciation found, using browser speech)';
         pronunciationElement.appendChild(speechNote);
       }
@@ -650,24 +573,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Load categories to all selects
   function loadCategories() {
-    chrome.storage.local.get(['vocabulary-categories'], function(result) {
-      let categories = [];
-      
-      if (result['vocabulary-categories']) {
-        categories = JSON.parse(result['vocabulary-categories']);
-      } else {
-        // Default category if none exists
-        categories = [{ 
-          id: 'default', 
-          name: 'Default',
-          sourceLanguage: 'en',
-          targetLanguage: 'vi'
-        }];
-        chrome.storage.local.set({
-          'vocabulary-categories': JSON.stringify(categories)
-        });
-      }
-
+    // Sử dụng hàm ensureCategories để đảm bảo danh mục không bị mất
+    ensureCategories().then(categories => {
       // Clear existing options in all selects except the "All" option in filter
       addCategorySelect.innerHTML = '';
       exportCategorySelect.innerHTML = '<option value="all">All categories</option>';
@@ -705,7 +612,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     categories.forEach(category => {
       const categoryItem = document.createElement('div');
-      categoryItem.className = 'flex flex-col p-3 border border-gray-200 rounded-md hover:shadow-sm transition-shadow mb-3';
+      categoryItem.className = 'flex flex-col p-3 border border-gray-200 rounded-md hover:shadow-sm transition-shadow mb-3 category-list-item';
       
       const header = document.createElement('div');
       header.className = 'flex justify-between items-center mb-2';
@@ -765,15 +672,15 @@ document.addEventListener('DOMContentLoaded', function() {
   // Load words from storage
   function loadWords() {
     chrome.storage.local.get(['vocabulary-words'], function(result) {
-      wordList.innerHTML = '<div class="text-center text-gray-500 py-4">Loading vocabulary...</div>';
+      wordList.innerHTML = '<div class="text-center text-muted py-4">Loading vocabulary...</div>';
       
       if (!result['vocabulary-words']) {
         // Không có từ vựng nào, hiển thị thông báo
         wordList.innerHTML = '';
         const emptyMessage = document.createElement('div');
-        emptyMessage.className = 'text-center text-gray-500 py-6 bg-gray-50 rounded-lg';
+        emptyMessage.className = 'text-center text-muted py-6 bg-card rounded-lg border border-normal';
         emptyMessage.innerHTML = `
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-2 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
           </svg>
           <p>No vocabulary words yet.</p>
@@ -862,13 +769,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Tạo thông tin tổng quan
     const wordCount = document.createElement('div');
-    wordCount.className = 'text-sm text-gray-500 mb-4';
+    wordCount.className = 'text-sm text-muted mb-4';
     
     if (words.length === 0) {
       const emptyMessage = document.createElement('div');
-      emptyMessage.className = 'text-center text-gray-500 py-6 bg-gray-50 rounded-lg';
+      emptyMessage.className = 'text-center text-muted py-6 bg-card rounded-lg border border-normal';
       emptyMessage.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-2 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
         </svg>
         <p>No vocabulary in this category.</p>
@@ -890,7 +797,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Render each word as a card with hover effect
     words.forEach(word => {
       const wordCard = document.createElement('div');
-      wordCard.className = 'bg-white border border-gray-200 rounded-lg p-3 mb-3 transition-all duration-200 hover:shadow-md hover:border-blue-300';
+      wordCard.className = 'bg-card border border-gray-200 rounded-lg p-3 mb-3 transition-all duration-200 hover:shadow-md hover:border-blue-300';
       
       // Tạo header chứa từ và nút xóa
       const header = document.createElement('div');
@@ -901,7 +808,7 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Từ vựng chính
       const wordText = document.createElement('h3');
-      wordText.className = 'text-lg font-medium text-gray-900';
+      wordText.className = 'text-lg font-medium text-normal';
       wordText.textContent = word.text;
       wordInfo.appendChild(wordText);
       
@@ -947,7 +854,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // Hiển thị phiên âm nếu có
       if (word.pronunciation) {
         const pronunciationElement = createPronunciationElement(word.pronunciation);
-        pronunciationElement.className = 'flex items-center space-x-2 text-sm text-gray-500 mb-2 bg-gray-50 p-2 rounded-md';
+        pronunciationElement.className = 'flex items-center space-x-2 text-sm text-muted mb-2 bg-blue-50 p-2 rounded-md';
         wordCard.appendChild(pronunciationElement);
       } else {
         // Nếu không có pronunciation, tạo một đối tượng pronunciation mặc định sử dụng browser speech
@@ -959,18 +866,18 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         
         const pronunciationElement = createPronunciationElement(fallbackPronunciation);
-        pronunciationElement.className = 'flex items-center space-x-2 text-sm text-gray-500 mb-2 bg-gray-50 p-2 rounded-md';
+        pronunciationElement.className = 'flex items-center space-x-2 text-sm text-muted mb-2 bg-blue-50 p-2 rounded-md';
         wordCard.appendChild(pronunciationElement);
       }
       
       // Ý nghĩa của từ
       if (word.meaning) {
         const meaningElement = document.createElement('div');
-        meaningElement.className = 'text-gray-700 mt-2';
+        meaningElement.className = 'text-normal mt-2';
         meaningElement.setAttribute('data-word-id', word.id); // Thêm ID để tham chiếu khi chỉnh sửa
         
         const meaningLabel = document.createElement('span');
-        meaningLabel.className = 'text-sm text-gray-500';
+        meaningLabel.className = 'text-sm text-muted';
         meaningLabel.textContent = 'Meaning: ';
         
         const meaningText = document.createElement('span');
@@ -984,7 +891,7 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Thời gian tạo
       const timeElement = document.createElement('div');
-      timeElement.className = 'text-xs text-gray-400 mt-2';
+      timeElement.className = 'text-xs text-muted mt-2';
       const date = new Date(word.createdAt);
       timeElement.textContent = `Added: ${date.toLocaleDateString('en-US')} ${date.toLocaleTimeString('en-US')}`;
       wordCard.appendChild(timeElement);
@@ -992,8 +899,8 @@ document.addEventListener('DOMContentLoaded', function() {
       // Hiển thị thông tin dịch vụ AI đã dịch từ (nếu có)
       if (word.translatedBy) {
         const translatedByElement = document.createElement('div');
-        translatedByElement.className = 'text-xs text-gray-400 mt-1';
-        translatedByElement.innerHTML = `<span class="text-blue-400">✓</span> Translated by: ${word.translatedBy}`;
+        translatedByElement.className = 'text-xs text-muted mt-1';
+        translatedByElement.innerHTML = `<span class="text-accent">✓</span> Translated by: ${word.translatedBy}`;
         wordCard.appendChild(translatedByElement);
       }
       
@@ -1009,14 +916,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Nội dung modal
     const modalContent = document.createElement('div');
-    modalContent.className = 'bg-white rounded-lg shadow-lg p-6 w-full max-w-lg mx-4';
+    modalContent.className = 'bg-card rounded-lg shadow-lg p-6 w-full max-w-lg mx-4';
     
     // Header
     const modalHeader = document.createElement('div');
     modalHeader.className = 'flex justify-between items-center mb-4';
     
     const modalTitle = document.createElement('h3');
-    modalTitle.className = 'text-xl font-semibold text-gray-800';
+    modalTitle.className = 'text-xl font-semibold text-normal';
     modalTitle.textContent = `Edit meaning for "${word.text}"`;
     modalHeader.appendChild(modalTitle);
     
@@ -1030,12 +937,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Input field for meaning
     const inputLabel = document.createElement('label');
-    inputLabel.className = 'block text-sm font-medium text-gray-700 mb-2';
+    inputLabel.className = 'block text-sm font-medium text-normal mb-2';
     inputLabel.textContent = 'Meaning:';
     modalContent.appendChild(inputLabel);
     
     const meaningInput = document.createElement('textarea');
-    meaningInput.className = 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500';
+    meaningInput.className = 'w-full px-3 py-2 border border-normal rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500';
     meaningInput.value = word.meaning || '';
     meaningInput.rows = 4;
     modalContent.appendChild(meaningInput);
@@ -1112,22 +1019,54 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Cập nhật hàm deleteWord để xóa không cần xác nhận
   function deleteWord(wordId) {
+    console.log('Deleting word with ID:', wordId);
     chrome.storage.local.get(['vocabulary-words'], function(result) {
-      if (!result['vocabulary-words']) return;
+      if (!result['vocabulary-words']) {
+        console.log('No vocabulary words found in storage');
+        return;
+      }
       
-      let words = JSON.parse(result['vocabulary-words']);
+      let words = [];
+      try {
+        words = JSON.parse(result['vocabulary-words']);
+        console.log(`Found ${words.length} words in storage before deletion`);
+      } catch (error) {
+        console.error('Error parsing words from storage:', error);
+        return;
+      }
       
       // Find word to delete
       const wordToDelete = words.find(word => word.id === wordId);
-      if (!wordToDelete) return;
+      if (!wordToDelete) {
+        console.log('Word not found with ID:', wordId);
+        return;
+      }
+      
+      console.log('Found word to delete:', wordToDelete.text);
       
       // Remove the word
       words = words.filter(word => word.id !== wordId);
+      console.log(`Words count after deletion: ${words.length}`);
       
-      // Save updated words
+      // Save updated words to chrome.storage.local
       chrome.storage.local.set({
         'vocabulary-words': JSON.stringify(words)
       }, function() {
+        if (chrome.runtime.lastError) {
+          console.error('Error saving updated words to storage:', chrome.runtime.lastError);
+          return;
+        }
+        
+        console.log('Words updated successfully in chrome.storage');
+        
+        // Cập nhật cả trong localStorage để đảm bảo đồng bộ
+        try {
+          localStorage.setItem('vocabulary-words', JSON.stringify(words));
+          console.log('Words also updated in localStorage');
+        } catch (error) {
+          console.warn('Could not update localStorage:', error);
+        }
+        
         // Thông báo xóa thành công
         const deleteMsg = document.createElement('div');
         deleteMsg.className = 'fixed bottom-4 right-4 bg-red-600 text-white p-3 rounded shadow-lg';
@@ -1148,6 +1087,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Reload words với trang hiện tại
+        console.log('Rendering updated word list');
         renderCurrentPage();
       });
     });
@@ -1176,11 +1116,60 @@ document.addEventListener('DOMContentLoaded', function() {
   dateFromInput.valueAsDate = weekStart;
   dateToInput.valueAsDate = today;
 
+  // Hàm đảm bảo danh mục không bị mất và luôn có danh mục mặc định
+  function ensureCategories() {
+    console.log('Checking categories...');
+    return new Promise((resolve) => {
+      chrome.storage.local.get(['vocabulary-categories'], function(result) {
+        let categories = [];
+        
+        if (result['vocabulary-categories']) {
+          try {
+            categories = JSON.parse(result['vocabulary-categories']);
+            console.log(`Found ${categories.length} categories in storage`);
+          } catch (error) {
+            console.error('Error parsing categories:', error);
+            categories = [];
+          }
+        }
+        
+        // Kiểm tra xem đã có danh mục Default chưa
+        const hasDefaultCategory = categories.some(cat => cat.id === 'default');
+        console.log('Default category exists:', hasDefaultCategory);
+        
+        // Nếu chưa có, thêm danh mục Default
+        if (!hasDefaultCategory) {
+          console.log('Creating default category...');
+          const defaultCategory = { 
+            id: 'default', 
+            name: 'Default',
+            sourceLanguage: 'en',
+            targetLanguage: 'vi'
+          };
+          
+          categories.push(defaultCategory);
+          
+          // Lưu lại danh sách danh mục đã cập nhật
+          chrome.storage.local.set({
+            'vocabulary-categories': JSON.stringify(categories)
+          }, function() {
+            console.log('Default category saved to storage');
+            resolve(categories);
+          });
+        } else {
+          resolve(categories);
+        }
+      });
+    });
+  }
+
   // Add a new word with pronunciation
   async function addWord() {
     const text = addWordInput.value.trim();
     const meaning = addMeaningInput.value.trim();
     const categoryId = addCategorySelect.value;
+    
+    console.log('Adding new word with category ID:', categoryId);
     
     if (!text) {
       alert('Word cannot be empty!');
@@ -1199,7 +1188,26 @@ document.addEventListener('DOMContentLoaded', function() {
     document.body.appendChild(saveIndicator);
     
     try {
-      chrome.storage.local.get(['vocabulary-words', 'vocabulary-categories', 'vocabulary-api-settings'], async function(result) {
+      // Đảm bảo danh mục không bị mất
+      const categories = await ensureCategories();
+      
+      // Kiểm tra xem categoryId có tồn tại trong danh sách categories hay không
+      const categoryExists = categories.some(cat => cat.id === categoryId);
+      if (!categoryExists) {
+        console.warn(`Selected category ID ${categoryId} not found in categories list. Available categories:`, 
+          categories.map(c => ({id: c.id, name: c.name})));
+        
+        // Hiển thị thông báo lỗi nhưng vẫn tiếp tục với categoryId đã chọn
+        const errorToast = document.createElement('div');
+        errorToast.className = 'fixed bottom-4 right-4 bg-yellow-600 text-white p-3 rounded shadow-lg';
+        errorToast.innerHTML = `Warning: Category may not exist in the system but will still be used`;
+        document.body.appendChild(errorToast);
+        setTimeout(() => errorToast.remove(), 5000);
+      } else {
+        console.log(`Category ID ${categoryId} validated successfully`);
+      }
+      
+      chrome.storage.local.get(['vocabulary-words', 'vocabulary-api-settings'], async function(result) {
         let words = [];
         let autoMeaning = meaning;
         let translationService = 'Google Translate';
@@ -1232,8 +1240,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Nếu người dùng không nhập nghĩa, sử dụng dịch tự động
-        if (!meaning && result['vocabulary-categories']) {
-          const categories = JSON.parse(result['vocabulary-categories']);
+        if (!meaning) {
+          // Tìm thông tin danh mục từ danh sách đã đảm bảo
           const category = categories.find(cat => cat.id === categoryId);
           
           if (category) {
@@ -1324,11 +1332,13 @@ document.addEventListener('DOMContentLoaded', function() {
           id: Date.now().toString(),
           text: text,
           meaning: autoMeaning || meaning || '',
-          categoryId: categoryId,
+          categoryId: categoryId, // Use the selected category ID directly
           createdAt: Date.now(),
           pronunciation: currentPronunciation,
           translatedBy: !meaning && autoMeaning ? translationService : null // Track which service translated it
         };
+        
+        console.log('Saving new word with categoryId:', newWord.categoryId);
         
         // Function to get a user-friendly service name for display
         function getDisplayServiceName(serviceCode) {
@@ -1465,17 +1475,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Delete a category
   function deleteCategory(categoryId) {
+    console.log('Deleting category with ID:', categoryId);
     chrome.storage.local.get(['vocabulary-categories', 'vocabulary-words'], function(result) {
-      if (!result['vocabulary-categories']) return;
+      if (!result['vocabulary-categories']) {
+        console.log('No categories found in storage');
+        return;
+      }
       
       let categories = JSON.parse(result['vocabulary-categories']);
+      console.log('Categories before deletion:', categories.length);
       
       // Get category name for confirmation
       const categoryToDelete = categories.find(cat => cat.id === categoryId);
-      if (!categoryToDelete) return;
+      if (!categoryToDelete) {
+        console.log('Category not found:', categoryId);
+        return;
+      }
+      
+      console.log('Found category to delete:', categoryToDelete.name);
       
       // Remove the category
       categories = categories.filter(cat => cat.id !== categoryId);
+      console.log('Categories after deletion:', categories.length);
       
       // Update words to move them to default category
       if (result['vocabulary-words']) {
@@ -1483,6 +1504,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Count affected words
         const affectedWords = words.filter(word => word.categoryId === categoryId).length;
+        console.log('Words affected by category deletion:', affectedWords);
         
         // Update category ID for affected words
         words = words.map(word => {
@@ -1492,44 +1514,88 @@ document.addEventListener('DOMContentLoaded', function() {
           return word;
         });
         
-        // Save updated words
+        // Save updated words first
         chrome.storage.local.set({
           'vocabulary-words': JSON.stringify(words)
+        }, function() {
+          console.log('Words updated successfully after category deletion');
+          
+          // Thông báo di chuyển từ vựng nếu cần
+          if (affectedWords > 0) {
+            const moveMsg = document.createElement('div');
+            moveMsg.className = 'fixed bottom-4 right-4 bg-blue-600 text-white p-3 rounded shadow-lg';
+            moveMsg.innerHTML = `Moved ${affectedWords} words to Default category`;
+            document.body.appendChild(moveMsg);
+            
+            // Tự động ẩn thông báo sau 4 giây
+            setTimeout(() => {
+              moveMsg.remove();
+            }, 4000);
+          }
+          
+          // Sau khi cập nhật words, tiếp tục lưu categories
+          console.log('Saving updated categories to storage...');
+          chrome.storage.local.set({
+            'vocabulary-categories': JSON.stringify(categories)
+          }, function() {
+            console.log('Categories saved successfully after deletion');
+            
+            // Xóa cả khỏi localStorage để đảm bảo study.js không tái tạo
+            localStorage.setItem('vocabulary-categories', JSON.stringify(categories));
+            console.log('Categories also updated in localStorage');
+            
+            // Thông báo xóa thành công
+            const deleteMsg = document.createElement('div');
+            deleteMsg.className = 'fixed bottom-4 right-4 bg-red-600 text-white p-3 rounded shadow-lg';
+            deleteMsg.innerHTML = `Deleted category "${categoryToDelete.name}"`;
+            document.body.appendChild(deleteMsg);
+            
+            // Tự động ẩn thông báo sau 3 giây
+            setTimeout(() => {
+              deleteMsg.remove();
+            }, 3000);
+            
+            // Đợi một chút để đảm bảo dữ liệu đã được lưu đầy đủ vào storage
+            setTimeout(() => {
+              // Reload categories and words
+              console.log('Reloading categories and words after deletion');
+              loadCategories();
+              loadWords();
+            }, 500);
+          });
         });
-        
-        // Thông báo di chuyển từ vựng
-        if (affectedWords > 0) {
-          const moveMsg = document.createElement('div');
-          moveMsg.className = 'fixed bottom-4 right-4 bg-blue-600 text-white p-3 rounded shadow-lg';
-          moveMsg.innerHTML = `Moved ${affectedWords} words to Default category`;
-          document.body.appendChild(moveMsg);
+      } else {
+        // Nếu không có words, chỉ cần lưu categories
+        console.log('No words found, only saving updated categories...');
+        chrome.storage.local.set({
+          'vocabulary-categories': JSON.stringify(categories)
+        }, function() {
+          console.log('Categories saved successfully after deletion');
+          
+          // Xóa cả khỏi localStorage để đảm bảo study.js không tái tạo
+          localStorage.setItem('vocabulary-categories', JSON.stringify(categories));
+          console.log('Categories also updated in localStorage');
+          
+          // Thông báo xóa thành công
+          const deleteMsg = document.createElement('div');
+          deleteMsg.className = 'fixed bottom-4 right-4 bg-red-600 text-white p-3 rounded shadow-lg';
+          deleteMsg.innerHTML = `Deleted category "${categoryToDelete.name}"`;
+          document.body.appendChild(deleteMsg);
           
           // Tự động ẩn thông báo sau 3 giây
           setTimeout(() => {
-            moveMsg.remove();
-          }, 4000);
-        }
+            deleteMsg.remove();
+          }, 3000);
+          
+          // Đợi một chút để đảm bảo dữ liệu đã được lưu đầy đủ vào storage
+          setTimeout(() => {
+            // Reload categories and words
+            console.log('Reloading categories and words after deletion');
+            loadCategories();
+            loadWords();
+          }, 500);
+        });
       }
-      
-      // Save updated categories
-      chrome.storage.local.set({
-        'vocabulary-categories': JSON.stringify(categories)
-      }, function() {
-        // Thông báo xóa thành công
-        const deleteMsg = document.createElement('div');
-        deleteMsg.className = 'fixed bottom-4 right-4 bg-red-600 text-white p-3 rounded shadow-lg';
-        deleteMsg.innerHTML = `Deleted category "${categoryToDelete.name}"`;
-        document.body.appendChild(deleteMsg);
-        
-        // Tự động ẩn thông báo sau 3 giây
-        setTimeout(() => {
-          deleteMsg.remove();
-        }, 3000);
-        
-        // Reload categories and words
-        loadCategories();
-        loadWords();
-      });
     });
   }
 
@@ -2532,6 +2598,433 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // Khởi tạo dark mode
-  initDarkMode();
-  applyQuizletColorScheme();
+  // function initDarkMode() {...} ➡ Xóa toàn bộ function này
+
+  // Các biến và hàm xử lý Study Tab
+  const studyMode = document.getElementById('study-mode');
+  const studyCategory = document.getElementById('study-category');
+  const studyTimeRange = document.getElementById('study-time-range');
+  const flashcardsMode = document.getElementById('flashcards-mode');
+  const matchMode = document.getElementById('match-mode');
+  const flashcardElement = document.getElementById('flashcard');
+  const prevCardBtn = document.getElementById('prev-card');
+  const nextCardBtn = document.getElementById('next-card');
+  const cardCountElement = document.getElementById('card-count');
+  const shuffleCardsBtn = document.getElementById('shuffle-cards');
+  const startMatchGameBtn = document.getElementById('start-match-game');
+  const matchGameBoard = document.getElementById('match-game-board');
+  const pairsMatchedElement = document.getElementById('pairs-matched');
+  const totalPairsElement = document.getElementById('total-pairs');
+  const matchTimerElement = document.getElementById('match-timer');
+
+  // State cho study mode
+  let studyWords = [];
+  let currentCardIndex = 0;
+  let isCardFlipped = false;
+  let matchGameActive = false;
+  let matchedPairs = 0;
+  let totalPairs = 0;
+  let selectedCard = null;
+  let gameStartTime = 0;
+  let gameTimerInterval = null;
+
+  // Load study categories
+  function loadStudyCategories() {
+    const categories = JSON.parse(localStorage.getItem('vocabulary-categories') || '[]');
+    
+    // Xóa tất cả option hiện tại trừ option "All categories"
+    while (studyCategory.options.length > 1) {
+      studyCategory.remove(1);
+    }
+    
+    // Thêm các category mới
+    categories.forEach(category => {
+      const option = document.createElement('option');
+      option.value = category.id;
+      option.textContent = category.name;
+      studyCategory.appendChild(option);
+    });
+  }
+
+  // Filter study words dựa trên category và time range
+  function filterStudyWords() {
+    // Lấy tất cả từ vựng
+    const allWords = JSON.parse(localStorage.getItem('vocabulary-words') || '[]');
+    
+    // Filter theo category
+    let filteredWords = allWords;
+    if (studyCategory.value !== 'all') {
+      filteredWords = filteredWords.filter(word => word.categoryId === studyCategory.value);
+    }
+    
+    // Filter theo time range
+    const now = Date.now();
+    const oneDay = 24 * 60 * 60 * 1000;
+    const oneWeek = 7 * oneDay;
+    const oneMonth = 30 * oneDay;
+    
+    if (studyTimeRange.value === 'day') {
+      filteredWords = filteredWords.filter(word => now - word.createdAt < oneDay);
+    } else if (studyTimeRange.value === 'week') {
+      filteredWords = filteredWords.filter(word => now - word.createdAt < oneWeek);
+    } else if (studyTimeRange.value === 'month') {
+      filteredWords = filteredWords.filter(word => now - word.createdAt < oneMonth);
+    }
+    
+    // Shuffle words
+    studyWords = [...filteredWords].sort(() => Math.random() - 0.5);
+    
+    return studyWords;
+  }
+
+  // Initialize flashcards
+  function initFlashcards() {
+    const words = filterStudyWords();
+    
+    // Reset state
+    currentCardIndex = 0;
+    isCardFlipped = false;
+    
+    if (words.length === 0) {
+      // Không có từ vựng nào để học
+      flashcardElement.querySelector('.flashcard-front h3').textContent = 'No vocabulary to study';
+      flashcardElement.querySelector('.flashcard-back h3').textContent = 'Please add words or change filters';
+      cardCountElement.textContent = '0/0';
+      prevCardBtn.disabled = true;
+      nextCardBtn.disabled = true;
+      return;
+    }
+    
+    // Cập nhật UI
+    updateFlashcardContent();
+    updateFlashcardControls();
+  }
+
+  // Update nội dung flashcard
+  function updateFlashcardContent() {
+    if (studyWords.length === 0) return;
+    
+    const currentWord = studyWords[currentCardIndex];
+    flashcardElement.querySelector('.flashcard-front h3').textContent = currentWord.text;
+    flashcardElement.querySelector('.flashcard-back h3').textContent = currentWord.meaning;
+    
+    // Reset trạng thái card
+    if (isCardFlipped) {
+      flashcardElement.classList.remove('flipped');
+      isCardFlipped = false;
+    }
+    
+    // Cập nhật counter
+    cardCountElement.textContent = `${currentCardIndex + 1}/${studyWords.length}`;
+  }
+
+  // Update trạng thái các nút điều khiển flashcard
+  function updateFlashcardControls() {
+    prevCardBtn.disabled = currentCardIndex === 0;
+    prevCardBtn.classList.toggle('opacity-50', currentCardIndex === 0);
+    prevCardBtn.classList.toggle('cursor-not-allowed', currentCardIndex === 0);
+    
+    nextCardBtn.disabled = currentCardIndex === studyWords.length - 1;
+    nextCardBtn.classList.toggle('opacity-50', currentCardIndex === studyWords.length - 1);
+    nextCardBtn.classList.toggle('cursor-not-allowed', currentCardIndex === studyWords.length - 1);
+  }
+
+  // Initialize matching game
+  function initMatchGame() {
+    const words = filterStudyWords();
+    
+    // Reset state
+    matchGameActive = false;
+    matchedPairs = 0;
+    selectedCard = null;
+    clearInterval(gameTimerInterval);
+    gameTimerInterval = null;
+    gameStartTime = 0;
+    matchTimerElement.textContent = '0:00';
+    
+    // Lấy tối đa 10 từ
+    const gameWords = words.slice(0, Math.min(10, words.length));
+    totalPairs = gameWords.length;
+    
+    // Cập nhật counter
+    pairsMatchedElement.textContent = '0';
+    totalPairsElement.textContent = totalPairs.toString();
+    
+    if (gameWords.length === 0) {
+      // Không có từ vựng nào để học
+      matchGameBoard.innerHTML = `
+        <div class="text-center py-8 col-span-4">
+          <p class="text-gray-500">No vocabulary to study. Please add words or change filters.</p>
+        </div>
+      `;
+      return;
+    }
+    
+    // Hiển thị message "click start"
+    matchGameBoard.innerHTML = `
+      <div class="text-center py-8 col-span-4">
+        <p class="text-gray-500">Click "Start Game" to begin matching words with their meanings</p>
+      </div>
+    `;
+  }
+
+  // Start matching game
+  function startMatchGame() {
+    const words = studyWords.slice(0, Math.min(10, studyWords.length));
+    
+    if (words.length === 0) return;
+    
+    // Set game active
+    matchGameActive = true;
+    matchedPairs = 0;
+    selectedCard = null;
+    
+    // Reset và bắt đầu timer
+    clearInterval(gameTimerInterval);
+    gameStartTime = Date.now();
+    gameTimerInterval = setInterval(updateMatchTimer, 1000);
+    matchTimerElement.textContent = '0:00';
+    
+    // Tạo cards cho game
+    const cards = [];
+    
+    // Thêm cả word và meaning vào cards
+    words.forEach(word => {
+      cards.push({
+        id: `word-${word.id}`,
+        content: word.text,
+        type: 'word',
+        originalId: word.id,
+        isMatched: false
+      });
+      
+      cards.push({
+        id: `meaning-${word.id}`,
+        content: word.meaning,
+        type: 'meaning',
+        originalId: word.id,
+        isMatched: false
+      });
+    });
+    
+    // Shuffle cards
+    const shuffledCards = [...cards].sort(() => Math.random() - 0.5);
+    
+    // Render game board
+    matchGameBoard.innerHTML = '';
+    shuffledCards.forEach(card => {
+      const cardElement = document.createElement('div');
+      cardElement.className = 'match-card border-2 border-gray-200 rounded-lg p-4 flex items-center justify-center cursor-pointer';
+      cardElement.dataset.id = card.id;
+      cardElement.dataset.originalId = card.originalId;
+      cardElement.dataset.type = card.type;
+      
+      const contentElement = document.createElement('span');
+      contentElement.className = 'match-card-content text-center';
+      contentElement.textContent = card.content;
+      
+      if (card.type === 'word') {
+        contentElement.classList.add('font-medium');
+      }
+      
+      // Card back (trạng thái ẩn)
+      const questionMark = document.createElement('span');
+      questionMark.className = 'text-3xl text-gray-400 absolute';
+      questionMark.textContent = '?';
+      
+      cardElement.appendChild(contentElement);
+      cardElement.appendChild(questionMark);
+      
+      // Thêm event listener
+      cardElement.addEventListener('click', handleMatchCardClick);
+      
+      matchGameBoard.appendChild(cardElement);
+    });
+  }
+
+  // Handle click vào card trong match game
+  function handleMatchCardClick(event) {
+    if (!matchGameActive) return;
+    
+    const card = event.currentTarget;
+    const cardId = card.dataset.id;
+    const originalId = card.dataset.originalId;
+    const cardType = card.dataset.type;
+    
+    // Nếu card đã matched hoặc đang selected, bỏ qua
+    if (card.classList.contains('matched') || card === selectedCard) return;
+    
+    // Hiển thị card
+    card.classList.add('selected');
+    
+    // Nếu chưa có card nào được chọn
+    if (!selectedCard) {
+      selectedCard = card;
+      return;
+    }
+    
+    // Đã có một card được chọn, kiểm tra xem có khớp không
+    const selectedOriginalId = selectedCard.dataset.originalId;
+    const selectedType = selectedCard.dataset.type;
+    
+    // Nếu cùng originalId và khác loại (word vs meaning)
+    if (originalId === selectedOriginalId && cardType !== selectedType) {
+      // Match thành công
+      card.classList.remove('selected');
+      selectedCard.classList.remove('selected');
+      
+      card.classList.add('matched');
+      selectedCard.classList.add('matched');
+      
+      // Cập nhật state
+      matchedPairs++;
+      pairsMatchedElement.textContent = matchedPairs.toString();
+      
+      // Reset selected card
+      selectedCard = null;
+      
+      // Kiểm tra nếu đã match hết
+      if (matchedPairs === totalPairs) {
+        // Game kết thúc
+        clearInterval(gameTimerInterval);
+        
+        // Hiển thị thông báo thắng
+        setTimeout(() => {
+          const totalTime = matchTimerElement.textContent;
+          matchGameBoard.innerHTML = `
+            <div class="col-span-4 bg-green-50 p-6 rounded-lg border border-green-200 text-center">
+              <h3 class="text-green-700 text-xl font-bold mb-2">Congratulations!</h3>
+              <p class="text-green-700 mb-4">
+                You completed the game in ${totalTime}
+              </p>
+            </div>
+          `;
+          
+          // Đặt lại trạng thái
+          matchGameActive = false;
+        }, 500);
+      }
+    } else {
+      // Match thất bại
+      setTimeout(() => {
+        card.classList.remove('selected');
+        selectedCard.classList.remove('selected');
+        selectedCard = null;
+      }, 1000);
+    }
+  }
+
+  // Update timer cho match game
+  function updateMatchTimer() {
+    if (!gameStartTime) return;
+    
+    const elapsedSeconds = Math.floor((Date.now() - gameStartTime) / 1000);
+    const minutes = Math.floor(elapsedSeconds / 60);
+    const seconds = elapsedSeconds % 60;
+    
+    matchTimerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  }
+
+  // Toggle giữa các study modes
+  function toggleStudyModes() {
+    const mode = studyMode.value;
+    
+    if (mode === 'flashcards') {
+      flashcardsMode.classList.remove('hidden');
+      matchMode.classList.add('hidden');
+      initFlashcards();
+    } else if (mode === 'match') {
+      flashcardsMode.classList.add('hidden');
+      matchMode.classList.remove('hidden');
+      initMatchGame();
+    }
+  }
+
+  // Event Listeners cho Study tab
+  if (studyMode) {
+    studyMode.addEventListener('change', toggleStudyModes);
+  }
+  
+  if (studyCategory) {
+    studyCategory.addEventListener('change', () => {
+      if (studyMode.value === 'flashcards') {
+        initFlashcards();
+      } else {
+        initMatchGame();
+      }
+    });
+  }
+  
+  if (studyTimeRange) {
+    studyTimeRange.addEventListener('change', () => {
+      if (studyMode.value === 'flashcards') {
+        initFlashcards();
+      } else {
+        initMatchGame();
+      }
+    });
+  }
+  
+  // Event listeners cho flashcards
+  if (flashcardElement) {
+    flashcardElement.addEventListener('click', () => {
+      if (studyWords.length === 0) return;
+      
+      flashcardElement.classList.toggle('flipped');
+      isCardFlipped = !isCardFlipped;
+    });
+  }
+  
+  if (prevCardBtn) {
+    prevCardBtn.addEventListener('click', () => {
+      if (currentCardIndex > 0) {
+        currentCardIndex--;
+        updateFlashcardContent();
+        updateFlashcardControls();
+      }
+    });
+  }
+  
+  if (nextCardBtn) {
+    nextCardBtn.addEventListener('click', () => {
+      if (currentCardIndex < studyWords.length - 1) {
+        currentCardIndex++;
+        updateFlashcardContent();
+        updateFlashcardControls();
+      }
+    });
+  }
+  
+  if (shuffleCardsBtn) {
+    shuffleCardsBtn.addEventListener('click', () => {
+      initFlashcards();
+    });
+  }
+  
+  if (startMatchGameBtn) {
+    startMatchGameBtn.addEventListener('click', () => {
+      startMatchGame();
+    });
+  }
+
+  // Tab handling - update để xử lý tab study
+  tabButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      // ...code hiện tại...
+      
+      // Nếu đang chuyển đến tab study, load categories và init study mode
+      if (button.id === 'tab-study') {
+        loadStudyCategories();
+        toggleStudyModes();
+      }
+    });
+  });
+
+  // Khởi tạo dark mode
+  // function initDarkMode() {...} ➡ Xóa toàn bộ function này
+
+  // Các biến và hàm xử lý Study Tab
+  // ...
+
+  // ...
 });

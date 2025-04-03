@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Vocab Saver Extension",
+  "name": "Vocab Saver",
   "version": "1.0.0",
-  "description": "Save vocabulary words while browsing the web, organized by categories",
+  "description": "Save vocabulary words while browsing the web with flashcards and matching games. Organized by categories with pronunciation support.",
   "action": {
     "default_popup": "popup.html",
     "default_icon": {

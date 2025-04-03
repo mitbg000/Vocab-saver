@@ -1,0 +1,295 @@
+/* Study page specific styling */
+
+/* Thêm animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+  from { 
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to { 
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes pulseOnce {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* Áp dụng animation cho container */
+.study-mode-container {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Flashcard animation */
+.flashcard {
+  perspective: 1000px;
+  height: 16rem; /* Giữ nguyên chiều cao ban đầu */
+  width: 100%;
+  animation: slideInUp 0.5s ease-out;
+}
+
+.flashcard-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+}
+
+.flashcard.flipped .flashcard-inner {
+  transform: rotateY(180deg);
+}
+
+.flashcard-front, .flashcard-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.flashcard-front {
+  background: linear-gradient(135deg, #4F46E5, #4338CA);
+  color: white;
+}
+
+.flashcard-back {
+  background: linear-gradient(135deg, #10B981, #059669);
+  color: white;
+  transform: rotateY(180deg);
+}
+
+/* Thêm hiệu ứng hover cho flashcard */
+.flashcard:hover .flashcard-inner {
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px) rotateY(0deg);
+}
+
+.flashcard.flipped:hover .flashcard-inner {
+  transform: translateY(-2px) rotateY(180deg);
+}
+
+/* Start button animation */
+#shuffle-cards, #start-match-game {
+  transition: all 0.3s ease;
+}
+
+#shuffle-cards:hover, #start-match-game:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  animation: pulse 1s infinite;
+}
+
+/* Match game styling - Quizlet style */
+.word-column, .meaning-column {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.match-card {
+  min-height: 80px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  text-align: center;
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+  animation: fadeIn 0.4s ease-out;
+  border-width: 2px;
+  border-style: solid;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+}
+
+.match-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.match-card-word {
+  background-color: #f0f9ff; /* Light blue background for words */
+  border-color: #bfdbfe;
+  color: #1e40af;
+}
+
+.match-card-meaning {
+  background-color: #f0fdf4; /* Light green background for meanings */
+  border-color: #bbf7d0;
+  color: #166534;
+}
+
+/* Dark mode for match card */
+html.dark .match-card-word {
+  background-color: #0c4a6e;
+  border-color: #0369a1;
+  color: #e0f2fe;
+}
+
+html.dark .match-card-meaning {
+  background-color: #14532d;
+  border-color: #15803d;
+  color: #dcfce7;
+}
+
+/* Selected card states */
+.match-card.selected {
+  border-width: 3px !important;
+  transform: scale(1.02);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.match-card-word.selected {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+}
+
+.match-card-meaning.selected {
+  border-color: #10b981 !important;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+}
+
+/* Matched card states */
+.match-card.matched {
+  opacity: 0.8;
+  transform: scale(1);
+  border-color: #10b981 !important;
+  box-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
+}
+
+/* Animation when cards don't match */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.match-card.shake {
+  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+/* Highlight effect for matched pairs */
+@keyframes highlight {
+  0% { background-color: rgba(16, 185, 129, 0.2); }
+  50% { background-color: rgba(16, 185, 129, 0.5); }
+  100% { background-color: rgba(16, 185, 129, 0.2); }
+}
+
+.match-card.highlight-pair {
+  animation: highlight 0.5s ease;
+}
+
+.match-card-content {
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  word-break: break-word;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.match-card-content > div:first-child {
+  flex: 1;
+  overflow-y: auto;
+  margin: 5px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Fade out animation cho overlay */
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Hiệu ứng biến mất cho thẻ ghép đúng */
+@keyframes vanishCard {
+  0% { 
+    transform: scale(1); 
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  100% { 
+    transform: scale(0); 
+    opacity: 0;
+  }
+}
+
+.fade-out {
+  animation: fadeOut 0.5s forwards;
+}
+
+/* Đặc biệt cho thẻ khớp */
+.match-card.fade-out {
+  animation: vanishCard 0.5s forwards;
+}
+
+/* Quizlet style column headings */
+.word-column h3, .meaning-column h3 {
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--accent-color);
+  margin-bottom: 12px;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+/* Responsive styles cho match game */
+@media (max-width: 768px) {
+  .match-card {
+    min-height: 70px;
+    padding: 8px;
+    font-size: 0.85rem;
+  }
+  
+  /* Stack the columns on mobile */
+  #match-game-board {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .word-column, .meaning-column {
+    margin-bottom: 20px;
+  }
+}
+
+/* Responsive cho flashcards */
+@media (max-width: 640px) {
+  .flashcard {
+    height: 14rem;
+  }
+  
+  .flashcard-front h3,
+  .flashcard-back h3 {
+    font-size: 1.25rem;
+  }
+} 

@@ -2,6 +2,9 @@
 let categories = [];
 const PARENT_MENU_ID = 'saveVocabParent'; // More descriptive name
 
+// Thêm biến flag cho biết chế độ hoạt động
+const SIMPLIFIED_MODE = true; // Set to true to disable content script messaging
+
 // Log khi service worker được khởi động
 console.log('Vocab Saver Service Worker started at:', new Date().toISOString());
 
@@ -28,8 +31,10 @@ chrome.runtime.onStartup.addListener(async () => {
 // Hàm tải danh mục từ storage và tạo context menu
 function loadCategories() {
   return new Promise((resolve) => {
+    console.log('Background: Loading categories from storage');
     chrome.storage.local.get(['vocabulary-categories'], function(result) {
       if (!result['vocabulary-categories']) {
+        console.log('Background: No categories found, creating default category');
         // Tạo danh mục Default nếu chưa có
         categories = [{ 
           id: 'default', 
@@ -39,25 +44,72 @@ function loadCategories() {
         }];
         chrome.storage.local.set({
           'vocabulary-categories': JSON.stringify(categories)
-        }, resolve);
+        }, () => {
+          console.log('Background: Default category created and saved');
+          resolve();
+        });
       } else {
         // Lưu danh mục vào biến toàn cục
-        categories = JSON.parse(result['vocabulary-categories']);
-        
-        // Nếu danh mục hiện tại chưa có thông tin ngôn ngữ, cập nhật
-        const needsUpdate = categories.some(cat => !cat.sourceLanguage || !cat.targetLanguage);
-        if (needsUpdate) {
-          categories = categories.map(cat => {
-            if (!cat.sourceLanguage) cat.sourceLanguage = 'en';
-            if (!cat.targetLanguage) cat.targetLanguage = 'vi';
-            return cat;
-          });
+        try {
+          categories = JSON.parse(result['vocabulary-categories']);
+          console.log('Background: Loaded', categories.length, 'categories from storage');
           
+          // Kiểm tra xem có danh mục default không
+          const hasDefaultCategory = categories.some(cat => cat.id === 'default');
+          
+          // Nếu không có danh mục default, thêm vào
+          if (!hasDefaultCategory) {
+            console.log('Background: Adding missing default category');
+            categories.push({ 
+              id: 'default', 
+              name: 'Default',
+              sourceLanguage: 'en',
+              targetLanguage: 'vi'
+            });
+            
+            // Lưu lại danh sách danh mục đã cập nhật
+            chrome.storage.local.set({
+              'vocabulary-categories': JSON.stringify(categories)
+            }, () => {
+              console.log('Background: Default category added and saved');
+              resolve();
+            });
+          } else {
+            // Nếu danh mục hiện tại chưa có thông tin ngôn ngữ, cập nhật
+            const needsUpdate = categories.some(cat => !cat.sourceLanguage || !cat.targetLanguage);
+            if (needsUpdate) {
+              console.log('Background: Updating categories with missing language info');
+              categories = categories.map(cat => {
+                if (!cat.sourceLanguage) cat.sourceLanguage = 'en';
+                if (!cat.targetLanguage) cat.targetLanguage = 'vi';
+                return cat;
+              });
+              
+              chrome.storage.local.set({
+                'vocabulary-categories': JSON.stringify(categories)
+              }, () => {
+                console.log('Background: Updated categories saved');
+                resolve();
+              });
+            } else {
+              resolve();
+            }
+          }
+        } catch (error) {
+          console.error('Background: Error parsing categories:', error);
+          // Trong trường hợp lỗi, khởi tạo lại danh mục mặc định
+          categories = [{ 
+            id: 'default', 
+            name: 'Default',
+            sourceLanguage: 'en',
+            targetLanguage: 'vi'
+          }];
           chrome.storage.local.set({
             'vocabulary-categories': JSON.stringify(categories)
-          }, resolve);
-        } else {
-          resolve();
+          }, () => {
+            console.log('Background: Reset to default category after error');
+            resolve();
+          });
         }
       }
     });
@@ -185,33 +237,86 @@ async function getPronunciation(word) {
   }
 }
 
-// Hàm lưu từ vựng với dịch tự động
+// Thêm hàm wrapper an toàn cho sendMessage
+function sendMessageToTabSafely(tabId, message) {
+  // Nếu ở chế độ đơn giản hóa, chỉ ghi log và không gửi tin nhắn
+  if (SIMPLIFIED_MODE) {
+    console.log('Simplified mode: Would have sent message to tab', tabId, message);
+    return Promise.resolve(null);
+  }
+  
+  // Nếu không ở chế độ đơn giản hóa, gửi tin nhắn bình thường với error handling
+  return new Promise((resolve) => {
+    try {
+      chrome.tabs.sendMessage(tabId, message, function(response) {
+        if (chrome.runtime.lastError) {
+          console.warn(`Error sending message to tab ${tabId}:`, chrome.runtime.lastError);
+          resolve(null);
+        } else {
+          resolve(response);
+        }
+      });
+    } catch (error) {
+      console.warn(`Exception sending message to tab ${tabId}:`, error);
+      resolve(null);
+    }
+  });
+}
+
+// Thay thế các hàm hiện tại sử dụng chrome.tabs.sendMessage
+// Tìm và thay thế hàm saveWordWithAutoTranslation
+
 async function saveWordWithAutoTranslation(text, categoryId, tab) {
   try {
     // Tìm thông tin category để lấy ngôn ngữ nguồn và đích
-    const category = categories.find(cat => cat.id === categoryId);
+    let category = categories.find(cat => cat.id === categoryId);
+    
+    // Nếu không tìm thấy category, thử dùng category default
     if (!category) {
-      console.error('Category not found with ID:', categoryId);
-      // Gọi hàm lưu từ mà không có nghĩa
-      saveWord(text, '', categoryId, tab);
-      return;
+      console.warn('Category not found with ID:', categoryId, 'Falling back to default category');
+      category = categories.find(cat => cat.id === 'default');
+      
+      // Nếu vẫn không tìm thấy, tạo mới category default
+      if (!category) {
+        console.warn('Default category not found, creating it');
+        category = { 
+          id: 'default', 
+          name: 'Default',
+          sourceLanguage: 'en',
+          targetLanguage: 'vi'
+        };
+        
+        // Thêm category default vào danh sách
+        categories.push(category);
+        await new Promise(resolve => {
+          chrome.storage.local.set({
+            'vocabulary-categories': JSON.stringify(categories)
+          }, resolve);
+        });
+      }
+      // Cập nhật categoryId
+      categoryId = 'default';
     }
     
     console.log(`Translating selected word: "${text}" with category ${category.name}`);
     console.log('Source language:', category.sourceLanguage, 'Target language:', category.targetLanguage);
     
-    // Hiển thị thông báo đang dịch với thông tin ngôn ngữ
-    try {
-      await chrome.tabs.sendMessage(tab.id, {
-        action: 'showTranslatingNotification',
-        word: text,
-        categoryName: category.name,
-        sourceLanguage: category.sourceLanguage,
-        targetLanguage: category.targetLanguage
-      });
-    } catch (notificationError) {
-      console.warn('Could not show translating notification:', notificationError);
-      // Vẫn tiếp tục xử lý ngay cả khi không hiển thị được thông báo
+    // Chế độ đơn giản hóa: Chỉ ghi log thay vì hiển thị thông báo
+    if (SIMPLIFIED_MODE) {
+      console.log(`Simplified mode: Would show 'Translating "${text}" in "${category.name}" category' notification`);
+    } else {
+      // Code gốc gửi tin nhắn đến content script ở đây
+      try {
+        await sendMessageToTabSafely(tab.id, {
+          action: 'showTranslatingNotification',
+          word: text,
+          categoryName: category.name,
+          sourceLanguage: category.sourceLanguage,
+          targetLanguage: category.targetLanguage
+        });
+      } catch (notificationError) {
+        console.warn('Could not show translating notification:', notificationError);
+      }
     }
     
     // Dịch nghĩa tự động với timeout
@@ -251,141 +356,116 @@ async function saveWordWithAutoTranslation(text, categoryId, tab) {
           translatedBy = 'error';
         }
       } catch (fallbackError) {
-        console.error('Even fallback translation failed:', fallbackError);
-        meaning = `${text} (translation error: ${error.message || 'unknown'})`;
+        console.error('Fallback translation also failed:', fallbackError);
+        meaning = `${text} (could not translate)`;
         translatedBy = 'error';
       }
     }
     
-    // Đảm bảo meaning không bao giờ rỗng
-    if (!meaning || meaning.trim() === '') {
-      meaning = `${text} (could not translate)`;
-      translatedBy = 'error';
-    }
-    
     // Lưu từ với nghĩa đã dịch
-    await saveWord(text, meaning, categoryId, tab, translatedBy);
+    saveWord(text, meaning, categoryId, tab, translatedBy);
   } catch (error) {
-    console.error('Error saving vocabulary with auto-translation:', error);
-    // Lưu từ mà không có nghĩa nếu có lỗi
-    await saveWord(text, `${text} (error: ${error.message || 'unknown'})`, categoryId, tab, 'error');
+    console.error('Error in saveWordWithAutoTranslation:', error);
+    // Fallback: lưu từ không có nghĩa
+    saveWord(text, '', 'default', tab);
   }
 }
 
-// Hàm lưu từ vựng (đã cập nhật để lấy phiên âm)
+// Thay thế hàm saveWord
 async function saveWord(text, meaning, categoryId, tab, translatedBy = null) {
-  return new Promise((resolve, reject) => {
-    try {
-      // Lấy thông tin danh mục
-      const category = categories.find(cat => cat.id === categoryId);
-      const categoryName = category?.name || 'Default';
-      const sourceLanguage = category?.sourceLanguage || 'en';
-      const targetLanguage = category?.targetLanguage || 'vi';
+  try {
+    console.log(`Saving word "${text}" with meaning "${meaning}" to category ID: ${categoryId}`);
+    
+    // Chuẩn bị dữ liệu từ vựng
+    const word = {
+      id: Date.now().toString(), // Dùng timestamp làm ID
+      text: text,
+      meaning: meaning,
+      createdAt: Date.now(),
+      categoryId: categoryId || 'default', // Đảm bảo luôn có categoryId
+      translatedBy: translatedBy || null
+    };
+    
+    // Kiểm tra xem category có tồn tại không
+    const categoryExists = categories.some(cat => cat.id === categoryId);
+    if (!categoryExists) {
+      console.warn(`Category with ID ${categoryId} not found, using default category`);
+      word.categoryId = 'default';
       
-      // Lấy phiên âm cho từ vựng mới với timeout
-      let pronunciationPromise = getPronunciation(text);
-      let timeoutPromise = new Promise(resolve => setTimeout(() => resolve(null), 3000));
-      
-      Promise.race([pronunciationPromise, timeoutPromise])
-        .then(pronunciation => {
-          // Lưu từ vào storage
-          chrome.storage.local.get(['vocabulary-words'], function(result) {
-            let words = [];
-            
-            if (result['vocabulary-words']) {
-              try {
-                words = JSON.parse(result['vocabulary-words']);
-              } catch (parseError) {
-                console.error('Error parsing vocabulary words:', parseError);
-                words = [];
-              }
-            }
-            
-            // Tạo đối tượng từ vựng mới có phiên âm
-            const newWord = {
-              id: Date.now().toString(),
-              text: text,
-              meaning: meaning,
-              categoryId: categoryId,
-              createdAt: Date.now(),
-              pronunciation: pronunciation,
-              translatedBy: translatedBy
-            };
-            
-            // Log thông tin từ vựng
-            console.log('Saving word with details:', {
-              word: text,
-              meaning: meaning,
-              categoryName: categoryName,
-              pronunciation: pronunciation ? 'Available' : 'Not available',
-              sourceLanguage: sourceLanguage,
-              targetLanguage: targetLanguage,
-              translatedBy: translatedBy
-            });
-            
-            // Thêm vào mảng và lưu
-            words.push(newWord);
-            
-            chrome.storage.local.set({
-              'vocabulary-words': JSON.stringify(words)
-            }, function() {
-              // Kiểm tra lỗi lưu trữ
-              if (chrome.runtime.lastError) {
-                console.error('Error saving to storage:', chrome.runtime.lastError);
-                reject(chrome.runtime.lastError);
-                return;
-              }
-              
-              // Hiển thị thông báo đã lưu
-              try {
-                chrome.tabs.sendMessage(tab.id, {
-                  action: 'showSaveNotification',
-                  word: text,
-                  meaning: meaning,
-                  categoryName: categoryName,
-                  pronunciation: pronunciation,
-                  sourceLanguage: sourceLanguage,
-                  targetLanguage: targetLanguage,
-                  translatedBy: translatedBy
-                }, function(response) {
-                  // Kiểm tra lỗi khi gửi message
-                  if (chrome.runtime.lastError) {
-                    console.warn('Could not show save notification:', chrome.runtime.lastError);
-                    // Vẫn coi như thành công vì từ vựng đã được lưu
-                    resolve();
-                    return;
-                  }
-                  
-                  // Hoàn thành quá trình
-                  resolve();
-                });
-              } catch (messageError) {
-                console.warn('Error sending notification message:', messageError);
-                // Vẫn coi như thành công vì từ vựng đã được lưu
-                resolve();
-              }
-            });
-          });
-        })
-        .catch(error => {
-          console.error('Error getting pronunciation:', error);
-          // Tiếp tục lưu từ không có phiên âm
-          saveWordWithoutPronunciation(text, meaning, categoryId, tab, translatedBy)
-            .then(resolve)
-            .catch(reject);
+      // Kiểm tra xem danh mục default có tồn tại không
+      const hasDefaultCategory = categories.some(cat => cat.id === 'default');
+      if (!hasDefaultCategory) {
+        console.warn('Default category not found, creating it');
+        const defaultCategory = { 
+          id: 'default', 
+          name: 'Default',
+          sourceLanguage: 'en',
+          targetLanguage: 'vi'
+        };
+        
+        // Thêm danh mục default và lưu lại
+        categories.push(defaultCategory);
+        await new Promise(resolve => {
+          chrome.storage.local.set({
+            'vocabulary-categories': JSON.stringify(categories)
+          }, resolve);
         });
-      
-    } catch (error) {
-      console.error('Error in saveWord:', error);
-      // Thử lại không có phiên âm như là phương án dự phòng
-      saveWordWithoutPronunciation(text, meaning, categoryId, tab, translatedBy)
-        .then(resolve)
-        .catch(reject);
+      }
     }
-  });
+    
+    // Thử lấy phiên âm cho từ vựng nếu là tiếng Anh
+    const category = categories.find(cat => cat.id === word.categoryId);
+    if (category && category.sourceLanguage === 'en') {
+      try {
+        const pronunciation = await getPronunciation(text);
+        if (pronunciation) {
+          // Thêm thông tin phiên âm vào từ vựng
+          word.pronunciation = pronunciation;
+        }
+      } catch (pronunciationError) {
+        console.warn('Error getting pronunciation:', pronunciationError);
+        // Vẫn tiếp tục lưu từ vựng, chỉ bỏ qua phần phiên âm
+      }
+    }
+    
+    // Thêm từ vựng vào danh sách
+    chrome.storage.local.get(['vocabulary-words'], function(result) {
+      let words = [];
+      
+      if (result['vocabulary-words']) {
+        words = JSON.parse(result['vocabulary-words']);
+      }
+      
+      // Thêm từ mới vào danh sách
+      words.push(word);
+      
+      // Lưu danh sách cập nhật vào storage
+      chrome.storage.local.set({
+        'vocabulary-words': JSON.stringify(words)
+      }, function() {
+        console.log('Word saved successfully:', word);
+        
+        // Chế độ đơn giản hóa: Chỉ ghi log thay vì hiển thị thông báo
+        if (SIMPLIFIED_MODE) {
+          console.log(`Simplified mode: Would show 'Saved "${text}" to "${category?.name || 'Default'}" category' notification`);
+        } else {
+          // Hiển thị thông báo cho người dùng
+          sendMessageToTabSafely(tab.id, {
+            action: 'showSavedNotification',
+            word: word
+          });
+        }
+      });
+    });
+  } catch (error) {
+    console.error('Error in saveWord function:', error);
+    
+    // Trong trường hợp lỗi nghiêm trọng, thử lưu từ một cách đơn giản nhất
+    saveWordWithoutPronunciation(text, meaning, 'default', tab, translatedBy);
+  }
 }
 
-// Hàm lưu từ không có phiên âm (fallback)
+// Thay thế hàm saveWordWithoutPronunciation
 function saveWordWithoutPronunciation(text, meaning, categoryId, tab, translatedBy = null) {
   return new Promise((resolve, reject) => {
     try {
@@ -420,43 +500,29 @@ function saveWordWithoutPronunciation(text, meaning, categoryId, tab, translated
         // Thêm vào mảng và lưu
         words.push(newWord);
         
+        // Lưu danh sách từ vựng
         chrome.storage.local.set({
           'vocabulary-words': JSON.stringify(words)
         }, function() {
-          // Kiểm tra lỗi lưu trữ
-          if (chrome.runtime.lastError) {
-            console.error('Error saving to storage:', chrome.runtime.lastError);
-            reject(chrome.runtime.lastError);
-            return;
-          }
+          console.log('Word saved using fallback method:', newWord);
           
-          // Hiển thị thông báo đã lưu
-          try {
-            chrome.tabs.sendMessage(tab.id, {
-              action: 'showSaveNotification',
-              word: text,
-              meaning: meaning,
-              categoryName: categoryName,
-              pronunciation: null,
-              sourceLanguage: sourceLanguage,
-              targetLanguage: targetLanguage,
-              translatedBy: translatedBy
-            }, function(response) {
-              // Kiểm tra lỗi khi gửi message
-              if (chrome.runtime.lastError) {
-                console.warn('Could not show save notification:', chrome.runtime.lastError);
-                // Vẫn coi như thành công vì từ vựng đã được lưu
-                resolve();
-                return;
-              }
-              
-              // Hoàn thành quá trình
-              resolve();
-            });
-          } catch (messageError) {
-            console.warn('Error sending notification message:', messageError);
-            // Vẫn coi như thành công vì từ vựng đã được lưu
-            resolve();
+          // Chế độ đơn giản hóa: Chỉ ghi log thay vì hiển thị thông báo
+          if (SIMPLIFIED_MODE) {
+            console.log(`Simplified mode: Would show 'Saved "${text}" to "${categoryName}" category' notification`);
+            resolve(newWord);
+          } else {
+            // Hiển thị thông báo cho người dùng
+            try {
+              sendMessageToTabSafely(tab.id, {
+                action: 'showSavedNotification',
+                word: newWord
+              }).then(() => {
+                resolve(newWord);
+              });
+            } catch (error) {
+              console.warn('Error showing notification in fallback save:', error);
+              resolve(newWord); // Still resolve to maintain the flow
+            }
           }
         });
       });

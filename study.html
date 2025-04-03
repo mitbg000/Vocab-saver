@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Vocabulary</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="study.css">
+  <style>
+    /* Custom styles specific to this page only */
+    .accent-border-bottom {
+      border-bottom: 3px solid var(--accent-color);
+    }
+    
+    .accent-text {
+      color: var(--accent-color);
+    }
+    
+    .accent-bg {
+      background-color: var(--accent-color);
+    }
+  </style>
+  <script src="theme.js"></script>
+</head>
+<body class="bg-primary">
+  <div class="container mx-auto p-4 max-w-4xl">
+    <header class="bg-card shadow-md rounded-lg p-4 mb-6">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center">
+          <h1 class="text-2xl font-bold text-accent mr-6">Vocabulary</h1>
+          <nav class="flex space-x-1">
+            <a href="extension_index.html" class="px-4 py-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 font-medium transition-colors duration-200">
+              Manager
+            </a>
+            <a href="#" class="relative px-4 py-2 text-accent font-medium group">
+              <span class="absolute inset-x-0 bottom-0 h-1 accent-bg rounded-t-md"></span>
+              Study
+            </a>
+          </nav>
+        </div>
+        <div class="flex items-center">
+          <span class="text-sm text-muted mr-2">Dark Mode</span>
+          <button class="toggle-dark-mode" title="Toggle Dark Mode" aria-label="Toggle Dark/Light Mode">
+            <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Study Mode Tabs -->
+      <div class="mt-4 border-b border-normal">
+        <div class="flex" id="study-mode-tabs">
+          <button id="tab-flashcards" class="tab-btn tab-active px-4 py-2 mr-2 focus:outline-none flex items-center" data-mode="flashcards">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            Flashcards
+          </button>
+          <button id="tab-match" class="tab-btn px-4 py-2 mr-2 focus:outline-none flex items-center" data-mode="match">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
+            </svg>
+            Match Words & Meanings
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="bg-card shadow-md rounded-lg p-6 mb-6">
+      <h2 class="text-xl font-bold mb-6">Study Vocabulary</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div>
+          <label for="study-category" class="block text-sm font-medium mb-1 text-normal">Category:</label>
+          <select id="study-category" class="w-full px-3 py-2 border border-normal bg-card text-normal rounded-md">
+            <option value="all">All categories</option>
+            <!-- Categories will be loaded dynamically -->
+          </select>
+        </div>
+        
+        <div>
+          <label for="study-time-range" class="block text-sm font-medium mb-1 text-normal">Time Range:</label>
+          <select id="study-time-range" class="w-full px-3 py-2 border border-normal bg-card text-normal rounded-md">
+            <option value="all">All time</option>
+            <option value="day">Last 24 hours</option>
+            <option value="week">Last 7 days</option>
+            <option value="month">Last 30 days</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="flex justify-between items-center mb-4">
+        <!-- Study Mode Options (chỉ hiển thị khi chế độ tương ứng được chọn) -->
+        <div class="flex items-center space-x-4">
+          <!-- Options cho Flashcards -->
+          <div id="flashcard-options" class="flex items-center">
+            <span class="text-sm text-normal mr-2">Flashcard Mode:</span>
+            <select id="flashcard-order-mode" class="px-3 py-1 border border-normal bg-card text-normal rounded-md text-sm">
+              <option value="sequential">Sequential</option>
+              <option value="random" selected>Random</option>
+            </select>
+          </div>
+          
+          <!-- Options cho Match Game -->
+          <div id="match-options" class="flex items-center hidden">
+            <span class="text-sm text-normal mr-2">Pairs per game:</span>
+            <select id="match-pairs-count" class="px-3 py-1 border border-normal bg-card text-normal rounded-md text-sm">
+              <option value="2">2 pairs</option>
+              <option value="4">4 pairs</option>
+              <option value="6" selected>6 pairs</option>
+              <option value="12">12 pairs</option>
+              <option value="all">All available</option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- Refresh Button -->
+        <button id="refresh-data" class="btn-secondary flex items-center px-3 py-1 rounded-md text-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Refresh Data
+        </button>
+      </div>
+      
+      <div id="study-container" class="mt-6">
+        <!-- Study Modes Will Be Rendered Here -->
+        <div id="flashcards-mode" class="study-mode-container">
+          <div class="flashcard-container mx-auto max-w-md relative">
+            <div id="flashcard" class="flashcard cursor-pointer">
+              <div class="flashcard-inner">
+                <div class="flashcard-front">
+                  <h3 class="text-white text-2xl font-bold">Click to start</h3>
+                </div>
+                <div class="flashcard-back">
+                  <h3 class="text-white text-2xl">Meaning will appear here</h3>
+                </div>
+              </div>
+            </div>
+            <div class="flashcard-controls flex justify-between items-center mt-4">
+              <button id="prev-card" class="btn-secondary px-4 py-2 rounded-md flex items-center opacity-50 cursor-not-allowed" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Previous
+              </button>
+              <span id="card-count" class="text-sm text-normal">0/0</span>
+              <button id="next-card" class="btn-secondary px-4 py-2 rounded-md flex items-center opacity-50 cursor-not-allowed" disabled>
+                Next
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+            <div class="text-center mt-4">
+              <button id="shuffle-cards" class="btn-primary px-4 py-2 rounded-md flex items-center mx-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Shuffle & Start
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div id="match-mode" class="study-mode-container hidden">
+          <div class="match-game-container">
+            <div class="flex justify-between items-center mb-4">
+              <div class="text-normal">
+                <span class="font-medium">Pairs matched:</span> <span id="pairs-matched">0</span>/<span id="total-pairs">0</span>
+              </div>
+              <div class="text-normal">
+                <span class="font-medium">Time:</span> <span id="match-timer">0:00</span>
+              </div>
+            </div>
+            
+            <div id="match-game-board" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <!-- Match cards will be generated here -->
+              <div class="text-center py-8 col-span-4">
+                <p class="text-gray-500">Click "Start Game" to begin matching words with their meanings</p>
+              </div>
+            </div>
+            
+            <div class="text-center">
+              <button id="start-match-game" class="btn-primary px-4 py-2 rounded-md flex items-center mx-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Start Matching Game
+              </button>
+              <p class="text-sm text-muted mt-2">Click on matching pairs to connect words with their meanings.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="mt-8 pb-6 text-center">
+      <div class="container mx-auto">
+        <div class="border-t border-normal pt-5">
+          <!-- App Info -->
+          <div class="flex flex-col md:flex-row justify-center items-center space-y-2 md:space-y-0 md:space-x-8 mb-3">
+            <div class="flex items-center text-muted">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+              </svg>
+              <span class="text-sm">Version: <span class="text-accent font-medium">1.0</span></span>
+            </div>
+            
+            <div class="flex items-center text-muted">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+              </svg>
+              <span class="text-sm">Last Updated: <span class="text-accent font-medium">April 2025</span></span>
+            </div>
+          </div>
+          
+          <!-- Copyright -->
+          <div class="text-muted text-sm">
+            <p>&copy; 2025 mitbg000.com. All rights reserved.</p>
+            <p class="text-xs mt-1">Developed with <span class="text-accent">❤</span> by mitbg000</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="study.js"></script>
+</body>
+</html> 

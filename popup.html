@@ -5,141 +5,86 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vocab Saver</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
   <style>
-    :root {
-      --bg-primary: #f9fafb;
-      --bg-secondary: #ffffff;
-      --text-primary: #1f2937;
-      --text-secondary: #4b5563;
-      --border-color: #e5e7eb;
-      --accent-color: #3b82f6;
-      --accent-hover: #2563eb;
-      --shadow-color: rgba(0, 0, 0, 0.1);
-      --btn-secondary-bg: #e5e7eb;
-      --btn-secondary-text: #1f2937;
-      --btn-secondary-hover: #d1d5db;
-    }
-    
-    .dark-mode {
-      --bg-primary: #111827;
-      --bg-secondary: #1f2937;
-      --text-primary: #f9fafb;
-      --text-secondary: #d1d5db;
-      --border-color: #374151;
-      --accent-color: #3b82f6;
-      --accent-hover: #60a5fa;
-      --shadow-color: rgba(0, 0, 0, 0.25);
-      --btn-secondary-bg: #374151;
-      --btn-secondary-text: #e5e7eb;
-      --btn-secondary-hover: #4b5563;
-    }
-    
+    /* Custom styles specific to popup only */
     body {
       min-width: 350px;
       max-width: 350px;
       max-height: 500px;
       overflow-y: auto;
-      background-color: var(--bg-primary);
-      color: var(--text-primary);
-      transition: background-color 0.3s, color 0.3s;
-    }
-    
-    .tab-content {
-      display: none;
-    }
-    .tab-content.active {
-      display: block;
-    }
-    .category-tab {
-      cursor: pointer;
-      padding: 8px 12px;
-      border-radius: 4px;
-      color: var(--text-secondary);
-      transition: background-color 0.3s, color 0.3s;
-    }
-    .category-tab.active {
-      background-color: var(--accent-color);
-      color: white;
-    }
-    .word-item {
-      border-bottom: 1px solid var(--border-color);
-      padding: 8px 0;
-    }
-    .word-item:last-child {
-      border-bottom: none;
-    }
-    #add-word-form {
-      background-color: var(--bg-secondary);
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 16px;
-      box-shadow: 0 1px 3px var(--shadow-color);
-      transition: all 0.3s ease;
-      border: 1px solid var(--border-color);
-    }
-    #add-word-form.hidden {
-      display: none;
-    }
-    
-    .bg-card {
-      background-color: var(--bg-secondary);
-      border-color: var(--border-color);
-    }
-    
-    .text-normal {
-      color: var(--text-primary);
-    }
-    
-    .text-muted {
-      color: var(--text-secondary);
-    }
-    
-    .border-normal {
-      border-color: var(--border-color);
-    }
-    
-    .btn-primary {
-      background-color: var(--accent-color);
-      color: white;
-    }
-    
-    .btn-primary:hover {
-      background-color: var(--accent-hover);
-    }
-    
-    .btn-secondary {
-      background-color: var(--btn-secondary-bg);
-      color: var(--btn-secondary-text);
-    }
-    
-    .btn-secondary:hover {
-      background-color: var(--btn-secondary-hover);
-    }
-    
-    input, select, textarea {
-      background-color: var(--bg-secondary);
-      color: var(--text-primary);
-      border-color: var(--border-color);
-    }
-    
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--accent-color);
+      padding-bottom: 60px;
+      position: relative;
     }
   </style>
+  <script src="theme.js"></script>
 </head>
-<body class="p-4">
+<body class="p-4 pb-16 popup-body bg-primary">
   <div class="bg-card rounded-lg shadow-md p-4">
-    <div class="flex justify-between items-center mb-4">
+    <!-- Header với tiêu đề và nút thêm từ -->
+    <div class="flex justify-between items-center mb-3 pb-3 border-b border-normal">
       <h1 class="text-lg font-bold text-normal">Vocab Saver</h1>
-      <div class="flex space-x-2 items-center">
-        <button id="addNewWordBtn" class="px-2 py-1 text-sm btn-primary rounded">Add Word</button>
-        <button id="openManager" class="px-2 py-1 text-sm btn-secondary rounded">Manage</button>
+      <div class="flex items-center">
+        <!-- Nút toggle dark mode với icon mặt trời/mặt trăng -->
+        <button class="toggle-dark-mode mr-3" title="Toggle Dark Mode" aria-label="Toggle Dark/Light Mode">
+          <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+        <button id="addNewWordBtn" class="px-3 py-1.5 text-sm btn-primary rounded-md flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Add Word
+        </button>
+      </div>
+    </div>
+    
+    <!-- Navigation giữa các chế độ -->
+    <div class="flex items-center mb-4">
+      <div class="flex w-full bg-gray-100 dark:bg-gray-800 rounded-md p-1">
+        <button id="tab-recent" class="category-tab flex-1 py-1.5 rounded-md text-sm active flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Recent
+        </button>
+        <button id="tab-search" class="category-tab flex-1 py-1.5 rounded-md text-sm flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          Search
+        </button>
+        <button id="tab-categories" class="category-tab flex-1 py-1.5 rounded-md text-sm flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+          </svg>
+          Categories
+        </button>
       </div>
     </div>
     
     <!-- Add New Word Form (Hidden by default) -->
-    <div id="add-word-form" class="mb-4 hidden">
-      <h2 class="text-md font-medium mb-2 text-normal">Add New Word</h2>
+    <div id="add-word-form" class="mb-4 hidden rounded-md border border-normal p-3">
+      <div class="flex justify-between items-center mb-3">
+        <h2 class="text-md font-medium text-normal">Add New Word</h2>
+        <button id="cancelAddWord" class="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
       
       <div class="mb-2">
         <label for="word" class="block text-sm font-medium mb-1 text-normal">Word</label>
@@ -159,23 +104,12 @@
         </select>
       </div>
       
-      <div class="flex space-x-2">
-        <button id="saveWord" class="flex-1 px-4 py-2 btn-primary font-medium rounded-md">
-          Save Word
-        </button>
-        <button id="cancelAddWord" class="px-4 py-2 btn-secondary font-medium rounded-md">
-          Cancel
-        </button>
-      </div>
-    </div>
-    
-    <!-- Tab navigation -->
-    <div class="mb-4">
-      <div class="flex space-x-2 mb-2">
-        <div id="tab-recent" class="category-tab active">Recent</div>
-        <div id="tab-search" class="category-tab">Search</div>
-        <div id="tab-categories" class="category-tab">Categories</div>
-      </div>
+      <button id="saveWord" class="w-full px-4 py-2 btn-primary font-medium rounded-md flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        Save Word
+      </button>
     </div>
     
     <!-- Tab content -->
@@ -190,7 +124,12 @@
       <!-- Search Tab -->
       <div id="content-search" class="tab-content">
         <div class="mb-4">
-          <input id="search-input" type="text" class="w-full px-3 py-2 border border-normal rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter search keyword...">
+          <div class="relative">
+            <input id="search-input" type="text" class="w-full pl-8 pr-3 py-2 border border-normal rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Search vocabulary...">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 absolute left-2.5 top-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
         </div>
         <div id="search-results" class="space-y-2">
           <div class="text-center text-muted py-4">Enter keyword to search</div>
@@ -208,7 +147,27 @@
       </div>
     </div>
   </div>
-
+  
+  <!-- Fixed bottom navbar -->
+  <div class="bottom-navbar">
+    <a href="extension_index.html" target="_blank">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+        <line x1="9" y1="9" x2="15" y2="9"></line>
+        <line x1="9" y1="13" x2="15" y2="13"></line>
+        <line x1="9" y1="17" x2="11" y2="17"></line>
+      </svg>
+      <span>Manager</span>
+    </a>
+    <a href="study.html" target="_blank">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+      </svg>
+      <span>Study</span>
+    </a>
+  </div>
+  
   <script src="popup.js"></script>
 </body>
 </html> 

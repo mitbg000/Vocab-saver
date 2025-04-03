@@ -5,150 +5,57 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vocabulary Manager</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+  <link rel="stylesheet" href="styles.css">
   <style>
-    :root {
-      --bg-primary: #f9fafb;
-      --bg-secondary: #ffffff;
-      --text-primary: #1f2937;
-      --text-secondary: #4b5563;
-      --border-color: #e5e7eb;
-      --accent-color: #2563eb;
-      --accent-hover: #1d4ed8;
-      --shadow-color: rgba(0, 0, 0, 0.1);
-    }
-    
-    .dark-mode {
-      --bg-primary: #111827;
-      --bg-secondary: #1f2937;
-      --text-primary: #f9fafb;
-      --text-secondary: #d1d5db;
-      --border-color: #374151;
-      --accent-color: #3b82f6;
-      --accent-hover: #60a5fa;
-      --shadow-color: rgba(0, 0, 0, 0.25);
-    }
-    
-    body {
-      background-color: var(--bg-primary);
-      color: var(--text-primary);
-      transition: background-color 0.3s, color 0.3s;
-    }
-    
-    .bg-card {
-      background-color: var(--bg-secondary);
-      border-color: var(--border-color);
-    }
-    
-    .text-normal {
-      color: var(--text-primary);
-    }
-    
-    .text-muted {
-      color: var(--text-secondary);
-    }
-    
-    .border-normal {
-      border-color: var(--border-color);
-    }
-    
-    /* Buttons */
-    .btn-primary {
-      background-color: var(--accent-color);
-      color: white;
-    }
-    
-    .btn-primary:hover {
-      background-color: var(--accent-hover);
-    }
-    
-    .btn-secondary {
-      background-color: var(--bg-secondary);
-      color: var(--text-primary);
-      border: 1px solid var(--border-color);
-    }
-    
-    .btn-secondary:hover {
-      background-color: var(--border-color);
-    }
-    
-    .btn-success {
-      background-color: #059669;
-      color: white;
-    }
-    
-    .btn-success:hover {
-      background-color: #047857;
-    }
-    
-    /* CSS cho tab active */
-    .tab-active {
+    /* Custom styles specific to this page only */
+    .accent-border-bottom {
       border-bottom: 3px solid var(--accent-color);
+    }
+    
+    .accent-text {
       color: var(--accent-color);
-      font-weight: 600;
-    }
-    /* Ẩn nội dung tab không được chọn */
-    .tab-content {
-      display: none;
-    }
-    /* Hiển thị tab đang được chọn */
-    .tab-content.active {
-      display: block;
-    }
-    /* Hiệu ứng hover cho tab */
-    .tab-btn:hover:not(.tab-active) {
-      color: var(--text-secondary);
-      border-bottom: 3px solid var(--border-color);
-      transition: all 0.2s;
-    }
-    /* Animation cho tab content */
-    .tab-content.active {
-      animation: fadeIn 0.3s;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
     }
     
-    .toggle-dark-mode {
-      width: 48px;
-      height: 28px;
-      border-radius: 14px;
-      background-color: #d1d5db;
-      position: relative;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      margin-left: 16px;
-    }
-    
-    .toggle-dark-mode::after {
-      content: '';
-      position: absolute;
-      width: 22px;
-      height: 22px;
-      background-color: white;
-      border-radius: 50%;
-      top: 3px;
-      left: 3px;
-      transition: transform 0.3s;
-    }
-    
-    .toggle-dark-mode.active {
-      background-color: #3b82f6;
-    }
-    
-    .toggle-dark-mode.active::after {
-      transform: translateX(20px);
+    .accent-bg {
+      background-color: var(--accent-color);
     }
   </style>
+  <script src="theme.js"></script>
 </head>
-<body>
+<body class="bg-primary">
   <div class="container mx-auto p-4 max-w-4xl">
     <header class="bg-card shadow-md rounded-lg p-4 mb-6">
       <div class="flex justify-between items-center">
-        <h1 class="text-2xl font-bold text-center text-blue-600">Vocabulary Manager</h1>
+        <div class="flex items-center">
+          <h1 class="text-2xl font-bold text-accent mr-6">Vocabulary</h1>
+          <nav class="flex space-x-1">
+            <a href="#" class="relative px-4 py-2 text-accent font-medium group">
+              <span class="absolute inset-x-0 bottom-0 h-1 accent-bg rounded-t-md"></span>
+              Manager
+            </a>
+            <a href="study.html" class="px-4 py-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 font-medium transition-colors duration-200">
+              Study
+            </a>
+          </nav>
+        </div>
         <div class="flex items-center">
           <span class="text-sm text-muted mr-2">Dark Mode</span>
-          <div id="darkModeToggle" class="toggle-dark-mode" title="Toggle Dark Mode"></div>
+          <button class="toggle-dark-mode" title="Toggle Dark Mode" aria-label="Toggle Dark/Light Mode">
+            <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
         </div>
       </div>
       
